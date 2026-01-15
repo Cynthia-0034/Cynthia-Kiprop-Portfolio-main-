@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QUANTUM DEFENDER | Cynthia Kiprop</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --quantum-blue: #00ffff;
+        --quantum-purple: #8b5cf6;
+        --neon-pink: #ec4899;
+        --energy-green: #10b981;
+        --warning-orange: #f59e0b;
+        --danger-red: #ef4444;
+        --deep-space: #0a0a1a;
+        --nebula-purple: #1e1b4b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='8' fill='%2300ffff'/%3E%3Ccircle cx='16' cy='16' r='15' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='4' x2='16' y2='10' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='22' x2='16' y2='28' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='4' y1='16' x2='10' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='22' y1='16' x2='28' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3C/svg%3E")
+            16 16,
+          crosshair;
+      }
+
+      body {
+        background: var(--deep-space);
+        color: white;
+        font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      /* Animated nebula background */
+      .nebula-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 30%,
+            rgba(139, 92, 246, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 70%,
+            rgba(0, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(236, 72, 153, 0.1) 0%,
+            transparent 50%
+          ),
+          linear-gradient(45deg, #0a0a1a 0%, #1e1b4b 100%);
+        z-index: -2;
+        pointer-events: none;
+      }
+
+      .starfield {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      @keyframes starTwinkle {
+        0%,
+        100% {
+          opacity: var(--o);
+          transform: scale(1);
+        }
+        50% {
+          opacity: calc(var(--o) * 0.25);
+          transform: scale(1.08);
+        }
+      }
+
+      /* Header */
+      .quantum-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(10, 10, 26, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 2px solid var(--quantum-blue);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.8rem;
+        font-weight: 900;
+        background: linear-gradient(
+          135deg,
+          var(--quantum-blue),
+          var(--quantum-purple)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .logo-icon {
+        font-size: 2.2rem;
+        animation: quantumPulse 2s infinite;
+      }
+
+      @keyframes quantumPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 10px var(--quantum-blue));
+        }
+        50% {
+          transform: scale(1.1);
+          filter: drop-shadow(0 0 20px var(--quantum-blue));
+        }
+      }
+
+      /* Main game container */
+      .game-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+        min-height: calc(100vh - 80px);
+      }
+
+      @media (max-width: 1024px) {
+        .game-container {
+          grid-template-columns: 1fr;
+          padding: 1rem;
+        }
+      }
+
+      /* Game canvas */
+      .game-canvas {
+        background: rgba(10, 10, 26, 0.7);
+        backdrop-filter: blur(10px);
+        border: 2px solid var(--quantum-blue);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8),
+          0 0 0 1px rgba(0, 255, 255, 0.1),
+          inset 0 0 60px rgba(0, 255, 255, 0.05);
+        position: relative;
+      }
+
+      .canvas-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid rgba(0, 255, 255, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      .mission-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .mission-status {
+        background: linear-gradient(
+          135deg,
+          var(--quantum-purple),
+          var(--neon-pink)
+        );
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+      }
+
+      .status-pulse {
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-radius: 50%;
+        animation: statusPulse 1s infinite;
+      }
+
+      @keyframes statusPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      canvas {
+        width: 100%;
+        height: 500px;
+        display: block;
+        background: transparent;
+        cursor: crosshair; /* fixes cursor “disappears” on canvas */
+        touch-action: none; /* cleaner mobile control */
+      }
+
+      /* Control panel */
+      .control-panel {
+        background: rgba(20, 20, 40, 0.8);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--quantum-purple);
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .panel-section {
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+      }
+
+      .panel-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--quantum-blue);
+        margin-bottom: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Game controls */
+      .game-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+      }
+
+      .quantum-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        color: white;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .quantum-btn:hover {
+        background: rgba(0, 255, 255, 0.15);
+        transform: translateY(-2px);
+        border-color: var(--quantum-blue);
+        box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .quantum-btn:active {
+        transform: translateY(0);
+      }
+
+      .quantum-btn.primary {
+        background: linear-gradient(
+          135deg,
+          var(--quantum-blue),
+          var(--quantum-purple)
+        );
+        border: none;
+        box-shadow: 0 5px 25px rgba(0, 255, 255, 0.4);
+      }
+
+      .quantum-btn.primary:hover {
+        background: linear-gradient(
+          135deg,
+          var(--quantum-purple),
+          var(--quantum-blue)
+        );
+        box-shadow: 0 8px 30px rgba(0, 255, 255, 0.6);
+      }
+
+      .quantum-btn.warning {
+        background: linear-gradient(135deg, var(--warning-orange), #d97706);
+        border: none;
+      }
+
+      .quantum-btn.danger {
+        background: linear-gradient(135deg, var(--danger-red), #dc2626);
+        border: none;
+      }
+
+      .quantum-btn.success {
+        background: linear-gradient(135deg, var(--energy-green), #059669);
+        border: none;
+      }
+
+      /* Stats display */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-card {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(0, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--quantum-blue),
+          var(--quantum-purple)
+        );
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--quantum-blue);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--quantum-blue), white);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Power-ups display */
+      .powerups-section {
+        margin-top: 1rem;
+      }
+
+      .powerups-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 1rem;
+      }
+
+      .powerup-item {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(236, 72, 153, 0.3);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .powerup-item.active {
+        background: rgba(236, 72, 153, 0.2);
+        border-color: var(--neon-pink);
+        box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .powerup-icon {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .powerup-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .powerup-timer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--neon-pink), transparent);
+        width: 0%;
+      }
+
+      /* Ability bars */
+      .ability-bars {
+        margin-top: 1rem;
+      }
+
+      .ability-bar {
+        margin-bottom: 1rem;
+      }
+
+      .bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--quantum-blue);
+        margin-bottom: 6px;
+      }
+
+      .bar-container {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.2s ease;
+        position: relative;
+      }
+
+      .bar-fill.health {
+        background: linear-gradient(90deg, var(--energy-green), #22c55e);
+      }
+
+      .bar-fill.shield {
+        background: linear-gradient(90deg, var(--quantum-blue), #3b82f6);
+      }
+
+      .bar-fill.energy {
+        background: linear-gradient(90deg, var(--neon-pink), #ec4899);
+      }
+
+      /* Key bindings */
+      .key-bindings {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .key-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+      }
+
+      .key-btn {
+        min-width: 40px;
+        height: 40px;
+        padding: 0 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--quantum-blue);
+        white-space: nowrap;
+      }
+
+      /* Notification system */
+      .notification-center {
+        position: fixed;
+        top: 100px;
+        right: 2rem;
+        width: 300px;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+      .notification {
+        background: rgba(20, 20, 40, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--quantum-blue);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: auto;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      .notification-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--quantum-blue);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .notification-message {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      /* Boss health bar */
+      .boss-health {
+        position: fixed;
+        top: 110px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(900px, 80%);
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid var(--danger-red);
+        border-radius: 10px;
+        padding: 8px;
+        display: none;
+        z-index: 999;
+      }
+
+      .boss-name {
+        text-align: center;
+        font-weight: 700;
+        color: var(--danger-red);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .boss-bar-container {
+        height: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .boss-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--danger-red), #f87171);
+        width: 100%;
+        transition: width 0.2s ease;
+      }
+
+      /* Combo counter */
+      .combo-display {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        font-weight: 900;
+        color: var(--neon-pink);
+        text-shadow: 0 0 30px rgba(236, 72, 153, 0.7);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 999;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .game-container {
+          padding: 1rem;
+        }
+
+        .quantum-header {
+          padding: 1rem;
+        }
+
+        .game-controls {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .powerups-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .notification-center {
+          width: 90%;
+          left: 5%;
+          right: 5%;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="is-loading">
+    <!-- Page Loader (shows ~2s) -->
+    <div
+      id="page-loader"
+      class="page-loader"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading"
+    >
+      <div class="loader-backdrop"></div>
+
+      <div class="loader-center">
+        <div class="loader-orbit" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-2" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-3" aria-hidden="true"></div>
+
+        <div class="loader-card">
+          <div class="loader-brand">
+            <span class="loader-mark" aria-hidden="true"></span>
+            <div class="loader-text">
+              <div class="loader-name">Cynthia J Kiprop</div>
+              <div class="loader-tagline">Design • Web • Data</div>
+            </div>
+          </div>
+
+          <div class="loader-progress" aria-hidden="true">
+            <span class="loader-bar"></span>
+          </div>
+
+          <div class="loader-hint">Loading the experience…</div>
+        </div>
+      </div>
+    </div>
+    <div class="nebula-bg"></div>
+    <div class="starfield" id="starfield"></div>
+
+    <div class="notification-center" id="notificationCenter"></div>
+    <div class="combo-display" id="comboDisplay">x10 COMBO!</div>
+
+    <div class="boss-health" id="bossHealth">
+      <div class="boss-name" id="bossName">ALIEN MOTHERSHIP</div>
+      <div class="boss-bar-container">
+        <div class="boss-bar-fill" id="bossHealthBar"></div>
+      </div>
+    </div>
+
+    <header class="quantum-header">
+      <div class="logo">
+        <i class="fas fa-rocket logo-icon"></i>
+        <span>QUANTUM DEFENDER</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem">
+        <button
+          class="quantum-btn"
+          onclick="window.open('index.html', '_self')"
+        >
+          <i class="fas fa-arrow-left"></i> Portfolio
+        </button>
+      </div>
+    </header>
+
+    <main class="game-container">
+      <section class="game-canvas">
+        <div class="canvas-header">
+          <div class="mission-title">
+            <i class="fas fa-crosshairs"></i>
+            <span>MISSION: DEFEND THE QUANTUM CORE</span>
+          </div>
+          <div class="mission-status">
+            <div class="status-pulse"></div>
+            <span id="missionStatus">READY</span>
+          </div>
+        </div>
+
+        <canvas id="quantumCanvas" width="1024" height="500"></canvas>
+      </section>
+
+      <aside class="control-panel">
+        <div class="panel-section">
+          <h3 class="section-title">
+            <i class="fas fa-gamepad"></i>
+            MISSION CONTROL
+          </h3>
+
+          <div class="game-controls">
+            <button class="quantum-btn primary" id="startBtn">
+              <i class="fas fa-play"></i> Launch
+            </button>
+            <button class="quantum-btn warning" id="pauseBtn">
+              <i class="fas fa-pause"></i> Pause
+            </button>
+            <button class="quantum-btn danger" id="resetBtn">
+              <i class="fas fa-redo"></i> Reset
+            </button>
+            <button class="quantum-btn success" id="upgradeBtn">
+              <i class="fas fa-bolt"></i> Upgrade
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="section-title">
+            <i class="fas fa-chart-line"></i>
+            QUANTUM STATS
+          </h3>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Score</div>
+              <div class="stat-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Level</div>
+              <div class="stat-value" id="levelDisplay">1</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Lives</div>
+              <div class="stat-value" id="livesDisplay">3</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Wave</div>
+              <div class="stat-value" id="waveDisplay">1</div>
+            </div>
+          </div>
+
+          <div class="ability-bars">
+            <div class="ability-bar">
+              <div class="bar-label">
+                <span>Hull Integrity</span>
+                <span id="healthValue">100%</span>
+              </div>
+              <div class="bar-container">
+                <div
+                  class="bar-fill health"
+                  id="healthBar"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="ability-bar">
+              <div class="bar-label">
+                <span>Shield Power</span>
+                <span id="shieldValue">100%</span>
+              </div>
+              <div class="bar-container">
+                <div
+                  class="bar-fill shield"
+                  id="shieldBar"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="ability-bar">
+              <div class="bar-label">
+                <span>Quantum Energy</span>
+                <span id="energyValue">100%</span>
+              </div>
+              <div class="bar-container">
+                <div
+                  class="bar-fill energy"
+                  id="energyBar"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section powerups-section">
+          <h3 class="section-title">
+            <i class="fas fa-star"></i>
+            ACTIVE SYSTEMS
+          </h3>
+
+          <div class="powerups-grid">
+            <div class="powerup-item" id="powerupRapid">
+              <i class="fas fa-bolt powerup-icon"></i>
+              <div class="powerup-name">Rapid Fire</div>
+              <div class="powerup-timer"></div>
+            </div>
+            <div class="powerup-item" id="powerupShield">
+              <i class="fas fa-shield-alt powerup-icon"></i>
+              <div class="powerup-name">Shield</div>
+              <div class="powerup-timer"></div>
+            </div>
+            <div class="powerup-item" id="powerupSpread">
+              <i class="fas fa-expand-alt powerup-icon"></i>
+              <div class="powerup-name">Spread Shot</div>
+              <div class="powerup-timer"></div>
+            </div>
+            <div class="powerup-item" id="powerupSlow">
+              <i class="fas fa-hourglass-half powerup-icon"></i>
+              <div class="powerup-name">Time Slow</div>
+              <div class="powerup-timer"></div>
+            </div>
+            <div class="powerup-item" id="powerupMagnet">
+              <i class="fas fa-magnet powerup-icon"></i>
+              <div class="powerup-name">Collector</div>
+              <div class="powerup-timer"></div>
+            </div>
+            <div class="powerup-item" id="powerupDouble">
+              <i class="fas fa-gem powerup-icon"></i>
+              <div class="powerup-name">Double XP</div>
+              <div class="powerup-timer"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="section-title">
+            <i class="fas fa-keyboard"></i>
+            CONTROLS
+          </h3>
+          <div class="key-bindings">
+            <div class="key-row">
+              <div class="key-btn">←</div>
+              <div class="key-btn">→</div>
+              <span>Move Ship</span>
+            </div>
+            <div class="key-row">
+              <div class="key-btn">A</div>
+              <div class="key-btn">D</div>
+              <span>Alternate Move</span>
+            </div>
+            <div class="key-row">
+              <div class="key-btn">SPACE</div>
+              <span>Fire Primary</span>
+            </div>
+            <div class="key-row">
+              <div class="key-btn">SHIFT</div>
+              <span>Hold for Rapid Fire</span>
+            </div>
+            <div class="key-row">
+              <div class="key-btn">P</div>
+              <span>Pause Game</span>
+            </div>
+            <div class="key-row">
+              <div class="key-btn">CLICK</div>
+              <span>Hold for Auto-fire</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      class QuantumDefender {
+        constructor() {
+          this.canvas = document.getElementById("quantumCanvas");
+          this.ctx = this.canvas.getContext("2d");
+
+          this.gameState = "ready"; // ready, running, paused, gameover, boss
+
+          this.score = 0;
+          this.highScore = Number(
+            localStorage.getItem("quantumHighScore") || 0
+          );
+          this.level = 1;
+          this.wave = 1;
+          this.lives = 3;
+
+          this.combo = 0;
+          this.comboTimer = 0;
+
+          this.keys = new Set();
+          this.mouse = { x: 0, y: 0, down: false };
+
+          this.player = {
+            x: 400,
+            y: 450,
+            width: 40,
+            height: 60,
+            speed: 8,
+            health: 100,
+            shield: 100,
+            energy: 100,
+            lastShot: 0,
+            shotCooldown: 150,
+            isInvulnerable: false,
+            invulnerableTimer: 0,
+          };
+
+          this.bullets = [];
+          this.enemies = [];
+          this.particles = [];
+          this.powerups = [];
+          this.explosions = [];
+
+          this.activePowerups = {
+            rapidFire: { active: false, timer: 0 },
+            shield: { active: false, timer: 0 },
+            spreadShot: { active: false, timer: 0 },
+            timeSlow: { active: false, timer: 0 },
+            magnet: { active: false, timer: 0 },
+            doubleXP: { active: false, timer: 0 },
+          };
+
+          this.boss = null;
+          this.bossActive = false;
+
+          // NEW: timed world powerup spawns so game feels alive
+          this.worldPowerupTimer = 0; // frames
+
+          this.init();
+          this.setupEventListeners();
+          this.createStarfield();
+          this.updateUI();
+          this.showNotification(
+            "Quantum Defender Online",
+            "Systems ready for launch!"
+          );
+        }
+
+        init() {
+          this.resizeCanvas();
+          window.addEventListener("resize", () => this.resizeCanvas());
+          this.gameLoop();
+        }
+
+        resizeCanvas() {
+          const container = this.canvas.parentElement;
+          const rect = container.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+
+          // IMPORTANT FIX: reset transform so scaling doesn't stack on resize
+          this.canvas.width = Math.floor(rect.width * dpr);
+          this.canvas.height = Math.floor(500 * dpr);
+          this.canvas.style.width = rect.width + "px";
+          this.canvas.style.height = "500px";
+          this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        get width() {
+          return this.canvas.width / (window.devicePixelRatio || 1);
+        }
+        get height() {
+          return this.canvas.height / (window.devicePixelRatio || 1);
+        }
+
+        createStarfield() {
+          const starfield = document.getElementById("starfield");
+          starfield.innerHTML = "";
+          const count = 160;
+
+          for (let i = 0; i < count; i++) {
+            const star = document.createElement("div");
+            const s = Math.random() * 2.6 + 0.6;
+            const o = Math.random() * 0.55 + 0.25;
+
+            star.style.position = "absolute";
+            star.style.width = s + "px";
+            star.style.height = s + "px";
+            star.style.left = Math.random() * 100 + "%";
+            star.style.top = Math.random() * 100 + "%";
+            star.style.borderRadius = "999px";
+            star.style.background = "white";
+            star.style.boxShadow = `0 0 ${
+              Math.random() * 10 + 6
+            }px rgba(255,255,255,0.35)`;
+            star.style.setProperty("--o", o);
+            star.style.animation = `starTwinkle ${Math.random() * 3 + 2.5}s ${
+              Math.random() * 2
+            }s infinite alternate`;
+
+            starfield.appendChild(star);
+          }
+        }
+
+        setupEventListeners() {
+          window.addEventListener("keydown", (e) => {
+            this.keys.add(e.key);
+
+            if (e.key === "p" || e.key === "P") this.togglePause();
+            if (e.key === " " || e.code === "Space") e.preventDefault();
+          });
+
+          window.addEventListener("keyup", (e) => {
+            this.keys.delete(e.key);
+          });
+
+          // mouse
+          this.canvas.addEventListener("mousemove", (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            this.mouse.x = e.clientX - rect.left;
+            this.mouse.y = e.clientY - rect.top;
+          });
+
+          this.canvas.addEventListener(
+            "mousedown",
+            () => (this.mouse.down = true)
+          );
+          window.addEventListener("mouseup", () => (this.mouse.down = false));
+
+          // touch
+          this.canvas.addEventListener(
+            "touchstart",
+            (e) => {
+              const rect = this.canvas.getBoundingClientRect();
+              const t = e.touches[0];
+              this.mouse.x = t.clientX - rect.left;
+              this.mouse.y = t.clientY - rect.top;
+              this.mouse.down = true;
+              e.preventDefault();
+            },
+            { passive: false }
+          );
+
+          this.canvas.addEventListener(
+            "touchmove",
+            (e) => {
+              const rect = this.canvas.getBoundingClientRect();
+              const t = e.touches[0];
+              this.mouse.x = t.clientX - rect.left;
+              this.mouse.y = t.clientY - rect.top;
+              e.preventDefault();
+            },
+            { passive: false }
+          );
+
+          this.canvas.addEventListener(
+            "touchend",
+            () => (this.mouse.down = false)
+          );
+
+          // buttons
+          document
+            .getElementById("startBtn")
+            .addEventListener("click", () => this.startGame());
+          document
+            .getElementById("pauseBtn")
+            .addEventListener("click", () => this.togglePause());
+          document
+            .getElementById("resetBtn")
+            .addEventListener("click", () => this.resetGame());
+          document
+            .getElementById("upgradeBtn")
+            .addEventListener("click", () => this.showUpgradeMenu());
+
+          // click-to-start
+          this.canvas.addEventListener("click", () => {
+            if (this.gameState === "ready") this.startGame();
+          });
+        }
+
+        startGame() {
+          if (this.gameState === "ready" || this.gameState === "gameover") {
+            this.resetGame();
+            this.gameState = "running";
+            document.getElementById("missionStatus").textContent = "ENGAGED";
+            this.showNotification(
+              "Mission Started",
+              "Defend the quantum core at all costs!"
+            );
+          }
+        }
+
+        togglePause() {
+          if (this.gameState === "running" || this.gameState === "boss") {
+            this.gameState = "paused";
+            document.getElementById("missionStatus").textContent = "PAUSED";
+            this.showNotification("Game Paused", "Systems on standby");
+          } else if (this.gameState === "paused") {
+            // if boss was active, return to boss state
+            this.gameState = this.bossActive ? "boss" : "running";
+            document.getElementById("missionStatus").textContent = this
+              .bossActive
+              ? "BOSS BATTLE"
+              : "ENGAGED";
+            this.showNotification("Game Resumed", "Systems re-engaged");
+          }
+        }
+
+        resetGame() {
+          this.score = 0;
+          this.level = 1;
+          this.wave = 1;
+          this.lives = 3;
+          this.combo = 0;
+          this.comboTimer = 0;
+
+          this.player = {
+            x: this.width / 2,
+            y: 450,
+            width: 40,
+            height: 60,
+            speed: 8,
+            health: 100,
+            shield: 100,
+            energy: 100,
+            lastShot: 0,
+            shotCooldown: 150,
+            isInvulnerable: false,
+            invulnerableTimer: 0,
+          };
+
+          this.bullets = [];
+          this.enemies = [];
+          this.particles = [];
+          this.powerups = [];
+          this.explosions = [];
+
+          this.activePowerups = {
+            rapidFire: { active: false, timer: 0 },
+            shield: { active: false, timer: 0 },
+            spreadShot: { active: false, timer: 0 },
+            timeSlow: { active: false, timer: 0 },
+            magnet: { active: false, timer: 0 },
+            doubleXP: { active: false, timer: 0 },
+          };
+
+          this.boss = null;
+          this.bossActive = false;
+          document.getElementById("bossHealth").style.display = "none";
+
+          this.worldPowerupTimer = 0;
+
+          this.updatePowerupUI();
+          this.updateUI();
+
+          this.gameState = "ready";
+          document.getElementById("missionStatus").textContent = "READY";
+        }
+
+        // FIX: Update should run during boss fights too
+        update() {
+          if (!(this.gameState === "running" || this.gameState === "boss"))
+            return;
+
+          this.updatePlayer();
+          this.updateBullets();
+          this.updateEnemies();
+          this.updateParticles();
+          this.updatePowerups();
+          this.updateExplosions();
+
+          if (this.bossActive) this.updateBoss();
+
+          this.updatePowerupTimers();
+          this.spawnEnemies();
+          this.spawnWorldPowerups();
+
+          // combo decay
+          if (this.combo > 0) {
+            this.comboTimer--;
+            if (this.comboTimer <= 0) this.resetCombo();
+          }
+
+          this.updateUI();
+
+          if (this.lives <= 0) this.gameOver();
+        }
+
+        updatePlayer() {
+          const moveSpeed =
+            this.player.speed * (this.activePowerups.timeSlow.active ? 0.7 : 1);
+
+          if (
+            this.keys.has("ArrowLeft") ||
+            this.keys.has("a") ||
+            this.keys.has("A")
+          )
+            this.player.x -= moveSpeed;
+          if (
+            this.keys.has("ArrowRight") ||
+            this.keys.has("d") ||
+            this.keys.has("D")
+          )
+            this.player.x += moveSpeed;
+
+          // bounds (center-based)
+          this.player.x = Math.max(
+            this.player.width / 2,
+            Math.min(this.width - this.player.width / 2, this.player.x)
+          );
+
+          const now = Date.now();
+          const shootKey =
+            this.keys.has(" ") ||
+            this.keys.has("Space") ||
+            this.keys.has("Spacebar");
+          const rapidFire =
+            this.activePowerups.rapidFire.active || this.keys.has("Shift");
+          const cooldown = rapidFire
+            ? this.player.shotCooldown / 3
+            : this.player.shotCooldown;
+
+          if (
+            (shootKey || this.mouse.down) &&
+            now - this.player.lastShot > cooldown
+          ) {
+            this.shoot();
+            this.player.lastShot = now;
+          }
+
+          // regen
+          if (this.player.shield < 100)
+            this.player.shield = Math.min(100, this.player.shield + 0.2);
+          if (this.player.energy < 100)
+            this.player.energy = Math.min(100, this.player.energy + 0.5);
+
+          if (this.player.isInvulnerable) {
+            this.player.invulnerableTimer--;
+            if (this.player.invulnerableTimer <= 0)
+              this.player.isInvulnerable = false;
+          }
+        }
+
+        // IMPROVED: bullets aim towards cursor for "control the arrow" feel
+        shoot() {
+          // direction from ship to cursor (clamp upward bias so it still feels shooter-like)
+          const dx = (this.mouse.x || this.player.x) - this.player.x;
+          const dy = (this.mouse.y || 0) - this.player.y;
+
+          const len = Math.max(1, Math.hypot(dx, dy));
+          let ux = dx / len;
+          let uy = dy / len;
+
+          // force upward-ish shooting so it doesn't shoot down into player
+          if (uy > -0.2) uy = -0.2;
+          const nlen = Math.max(1, Math.hypot(ux, uy));
+          ux /= nlen;
+          uy /= nlen;
+
+          const baseSpeed = 12;
+          const bulletCount = this.activePowerups.spreadShot.active ? 5 : 1;
+          const spread = this.activePowerups.spreadShot.active ? 0.25 : 0;
+
+          for (let i = 0; i < bulletCount; i++) {
+            const a = (i - (bulletCount - 1) / 2) * spread;
+            const cos = Math.cos(a),
+              sin = Math.sin(a);
+            const vx = (ux * cos - uy * sin) * baseSpeed;
+            const vy = (ux * sin + uy * cos) * baseSpeed;
+
+            this.bullets.push({
+              x: this.player.x,
+              y: this.player.y - this.player.height / 2,
+              vx,
+              vy,
+              width: 6,
+              height: 20,
+              damage: 10,
+              type: "player",
+              color: "#00ffff",
+            });
+          }
+
+          this.createMuzzleFlash(
+            this.player.x,
+            this.player.y - this.player.height / 2
+          );
+          this.playSound("shoot");
+        }
+
+        updateBullets() {
+          for (let i = this.bullets.length - 1; i >= 0; i--) {
+            const b = this.bullets[i];
+            const slow = this.activePowerups.timeSlow.active ? 0.85 : 1;
+            b.x += b.vx * slow;
+            b.y += b.vy * slow;
+
+            if (
+              b.y < -80 ||
+              b.y > this.height + 80 ||
+              b.x < -80 ||
+              b.x > this.width + 80
+            ) {
+              this.bullets.splice(i, 1);
+            }
+          }
+        }
+
+        spawnEnemies() {
+          const spawnRate = Math.max(55, 110 - this.wave * 4.5);
+
+          if (Math.random() < 1 / spawnRate && !this.bossActive) {
+            const types = ["basic", "fast", "tank", "shooter"];
+            const weights = [0.55, 0.2, 0.15, 0.1];
+
+            let type = "basic";
+            let r = Math.random();
+            let sum = 0;
+            for (let i = 0; i < types.length; i++) {
+              sum += weights[i];
+              if (r < sum) {
+                type = types[i];
+                break;
+              }
+            }
+            this.enemies.push(this.createEnemy(type));
+          }
+
+          // boss every 5 waves when arena is clear
+          if (
+            this.wave % 5 === 0 &&
+            !this.bossActive &&
+            this.enemies.length === 0 &&
+            this.gameState !== "paused"
+          ) {
+            this.spawnBoss();
+          }
+        }
+
+        createEnemy(type) {
+          const base = {
+            x: Math.random() * (this.width - 60) + 30,
+            y: -50,
+            width: 30,
+            height: 30,
+            health: 20,
+            maxHealth: 20,
+            color: "#ef4444",
+            vy: 2 + this.wave * 0.15,
+          };
+
+          switch (type) {
+            case "fast":
+              return {
+                ...base,
+                width: 20,
+                height: 20,
+                health: 10,
+                maxHealth: 10,
+                color: "#f59e0b",
+                vy: 3 + this.wave * 0.2,
+              };
+            case "tank":
+              return {
+                ...base,
+                width: 44,
+                height: 44,
+                health: 55 + this.wave * 6,
+                maxHealth: 55 + this.wave * 6,
+                color: "#6366f1",
+                vy: 1.1 + this.wave * 0.1,
+              };
+            case "shooter":
+              return {
+                ...base,
+                width: 26,
+                height: 26,
+                health: 15,
+                maxHealth: 15,
+                color: "#10b981",
+                vy: 1.5 + this.wave * 0.15,
+                shootTimer: 40,
+                shootCooldown: 70,
+              };
+            default:
+              return base;
+          }
+        }
+
+        updateEnemies() {
+          for (let i = this.enemies.length - 1; i >= 0; i--) {
+            const e = this.enemies[i];
+            const slow = this.activePowerups.timeSlow.active ? 0.75 : 1;
+            e.y += e.vy * slow;
+
+            if (e.shootTimer !== undefined) {
+              e.shootTimer--;
+              if (e.shootTimer <= 0) {
+                this.enemyShoot(e);
+                e.shootTimer = e.shootCooldown;
+              }
+            }
+
+            // collide with player (center-based)
+            if (
+              !this.player.isInvulnerable &&
+              this.checkCollision(e, this.player)
+            ) {
+              this.damagePlayer(20);
+              this.createExplosion(e.x, e.y, 30);
+              this.enemies.splice(i, 1);
+              continue;
+            }
+
+            // collide with bullets
+            for (let j = this.bullets.length - 1; j >= 0; j--) {
+              const b = this.bullets[j];
+              if (b.type === "player" && this.checkCollision(b, e)) {
+                e.health -= b.damage;
+                this.createHitEffect(b.x, b.y);
+                this.bullets.splice(j, 1);
+
+                if (e.health <= 0) {
+                  this.score +=
+                    100 * (this.activePowerups.doubleXP.active ? 2 : 1);
+
+                  this.combo++;
+                  this.comboTimer = 120;
+
+                  this.createExplosion(e.x, e.y, 40);
+                  this.spawnPowerupDrop(e.x, e.y);
+                  this.enemies.splice(i, 1);
+
+                  if (this.combo >= 5) this.showCombo();
+
+                  // wave logic: if boss not active and enemies cleared, increase wave
+                  if (this.enemies.length === 0 && !this.bossActive) {
+                    this.wave++;
+                    this.level = Math.floor(this.wave / 5) + 1;
+                    this.showNotification(
+                      `Wave ${this.wave - 1} Cleared`,
+                      "Next wave incoming…"
+                    );
+                  }
+                }
+                break;
+              }
+            }
+
+            if (e.y > this.height + 120) this.enemies.splice(i, 1);
+          }
+        }
+
+        enemyShoot(enemy) {
+          const angle = Math.atan2(
+            this.player.y - enemy.y,
+            this.player.x - enemy.x
+          );
+          const speed = 6;
+
+          this.bullets.push({
+            x: enemy.x,
+            y: enemy.y + enemy.height / 2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            width: 10,
+            height: 10,
+            damage: 15,
+            type: "enemy",
+            color: "#f59e0b",
+          });
+        }
+
+        // drop-based powerups (from enemies/boss)
+        spawnPowerupDrop(x, y) {
+          if (Math.random() > 0.22) return;
+
+          const types = [
+            "rapidFire",
+            "shield",
+            "spreadShot",
+            "timeSlow",
+            "magnet",
+            "doubleXP",
+          ];
+          const type = types[Math.floor(Math.random() * types.length)];
+
+          this.powerups.push({ x, y, width: 20, height: 20, type, vy: 2.1 });
+        }
+
+        // NEW: ambient powerups to keep game exciting even when you miss drops
+        spawnWorldPowerups() {
+          this.worldPowerupTimer++;
+          // every ~11 seconds (at 60fps), spawn a powerup from the top
+          if (this.worldPowerupTimer > 660 && !this.bossActive) {
+            this.worldPowerupTimer = 0;
+            const types = [
+              "rapidFire",
+              "shield",
+              "spreadShot",
+              "timeSlow",
+              "magnet",
+              "doubleXP",
+            ];
+            const type = types[Math.floor(Math.random() * types.length)];
+            this.powerups.push({
+              x: Math.random() * (this.width - 60) + 30,
+              y: -20,
+              width: 20,
+              height: 20,
+              type,
+              vy: 2.0,
+            });
+            this.showNotification(
+              "System Drop",
+              "A quantum module entered the field!"
+            );
+          }
+        }
+
+        updatePowerups() {
+          for (let i = this.powerups.length - 1; i >= 0; i--) {
+            const p = this.powerups[i];
+            p.y += p.vy;
+
+            if (this.activePowerups.magnet.active) {
+              const dx = this.player.x - p.x;
+              const dy = this.player.y - p.y;
+              const dist = Math.hypot(dx, dy);
+              if (dist < 320) {
+                p.x += dx * 0.05;
+                p.y += dy * 0.05;
+              }
+            }
+
+            if (this.checkCollision(p, this.player)) {
+              this.collectPowerup(p.type);
+              this.createCollectEffect(p.x, p.y);
+              this.powerups.splice(i, 1);
+              continue;
+            }
+
+            if (p.y > this.height + 60) this.powerups.splice(i, 1);
+          }
+        }
+
+        collectPowerup(type) {
+          const duration = 600;
+
+          if (type === "rapidFire") {
+            this.activePowerups.rapidFire.active = true;
+            this.activePowerups.rapidFire.timer = duration;
+            this.showNotification("Rapid Fire", "Fire rate increased!");
+          } else if (type === "shield") {
+            this.activePowerups.shield.active = true;
+            this.activePowerups.shield.timer = duration;
+            this.player.shield = 100;
+            this.showNotification("Shield", "Shields restored + reinforced!");
+          } else if (type === "spreadShot") {
+            this.activePowerups.spreadShot.active = true;
+            this.activePowerups.spreadShot.timer = duration;
+            this.showNotification("Spread Shot", "Multi-shot enabled!");
+          } else if (type === "timeSlow") {
+            this.activePowerups.timeSlow.active = true;
+            this.activePowerups.timeSlow.timer = duration;
+            this.showNotification("Time Slow", "Enemies slowed!");
+          } else if (type === "magnet") {
+            this.activePowerups.magnet.active = true;
+            this.activePowerups.magnet.timer = duration;
+            this.showNotification("Collector", "Nearby powerups pulled in!");
+          } else if (type === "doubleXP") {
+            this.activePowerups.doubleXP.active = true;
+            this.activePowerups.doubleXP.timer = duration;
+            this.showNotification("Double XP", "Score multiplier active!");
+          }
+
+          this.updatePowerupUI();
+        }
+
+        updatePowerupTimers() {
+          for (const [k, p] of Object.entries(this.activePowerups)) {
+            if (p.active) {
+              p.timer--;
+              if (p.timer <= 0) {
+                p.active = false;
+                this.updatePowerupUI();
+              }
+            }
+          }
+        }
+
+        updatePowerupUI() {
+          const map = {
+            rapidFire: document.getElementById("powerupRapid"),
+            shield: document.getElementById("powerupShield"),
+            spreadShot: document.getElementById("powerupSpread"),
+            timeSlow: document.getElementById("powerupSlow"),
+            magnet: document.getElementById("powerupMagnet"),
+            doubleXP: document.getElementById("powerupDouble"),
+          };
+
+          for (const [k, el] of Object.entries(map)) {
+            const p = this.activePowerups[k];
+            const bar = el.querySelector(".powerup-timer");
+            if (p.active) {
+              el.classList.add("active");
+              bar.style.width = ((p.timer / 600) * 100).toFixed(2) + "%";
+            } else {
+              el.classList.remove("active");
+              bar.style.width = "0%";
+            }
+          }
+        }
+
+        spawnBoss() {
+          this.bossActive = true;
+          this.gameState = "boss";
+          document.getElementById("missionStatus").textContent = "BOSS BATTLE";
+
+          const maxHealth = 520 + this.wave * 110;
+
+          this.boss = {
+            x: this.width / 2,
+            y: 110,
+            width: 140,
+            height: 120,
+            health: maxHealth,
+            maxHealth,
+            vx: 2.4,
+            pattern: 0,
+            patternTimer: 0,
+            shootTimer: 40,
+          };
+
+          document.getElementById("bossHealth").style.display = "block";
+          document.getElementById(
+            "bossName"
+          ).textContent = `WAVE ${this.wave} BOSS`;
+          this.showNotification(
+            "BOSS INCOMING",
+            "Massive enemy signature detected!"
+          );
+        }
+
+        updateBoss() {
+          if (!this.boss) return;
+
+          this.boss.patternTimer++;
+          if (this.boss.patternTimer > 170) {
+            this.boss.pattern = (this.boss.pattern + 1) % 3;
+            this.boss.patternTimer = 0;
+          }
+
+          if (this.boss.pattern === 0) {
+            this.boss.x += this.boss.vx;
+            if (
+              this.boss.x < this.boss.width / 2 ||
+              this.boss.x > this.width - this.boss.width / 2
+            ) {
+              this.boss.vx *= -1;
+            }
+          } else if (this.boss.pattern === 1) {
+            this.boss.x =
+              this.width / 2 + Math.cos(this.boss.patternTimer * 0.05) * 220;
+          } else {
+            this.boss.x += (this.player.x - this.boss.x) * 0.035;
+          }
+
+          this.boss.shootTimer--;
+          if (this.boss.shootTimer <= 0) {
+            this.bossShoot();
+            this.boss.shootTimer = 32;
+          }
+
+          // boss hit by player bullets
+          for (let i = this.bullets.length - 1; i >= 0; i--) {
+            const b = this.bullets[i];
+            if (b.type === "player" && this.checkCollision(b, this.boss)) {
+              this.boss.health -= b.damage;
+              this.createHitEffect(b.x, b.y);
+              this.bullets.splice(i, 1);
+
+              if (this.boss.health <= 0) {
+                this.defeatBoss();
+                break;
+              }
+            }
+          }
+
+          document.getElementById("bossHealthBar").style.width =
+            ((this.boss.health / this.boss.maxHealth) * 100).toFixed(2) + "%";
+
+          // boss collision with player
+          if (
+            !this.player.isInvulnerable &&
+            this.checkCollision(this.boss, this.player)
+          ) {
+            this.damagePlayer(50);
+          }
+        }
+
+        bossShoot() {
+          const patterns = [
+            () => {
+              for (let i = 0; i < 8; i++)
+                this.createBossBullet((i / 8) * Math.PI * 2, 4);
+            },
+            () => {
+              const a = Math.atan2(
+                this.player.y - this.boss.y,
+                this.player.x - this.boss.x
+              );
+              this.createBossBullet(a, 6);
+              this.createBossBullet(a + 0.2, 6);
+              this.createBossBullet(a - 0.2, 6);
+            },
+            () => {
+              for (let i = 0; i < 12; i++)
+                this.createBossBullet((i / 12) * Math.PI * 2, 3);
+            },
+          ];
+          patterns[Math.floor(Math.random() * patterns.length)]();
+        }
+
+        createBossBullet(angle, speed) {
+          this.bullets.push({
+            x: this.boss.x,
+            y: this.boss.y + this.boss.height / 3,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            width: 12,
+            height: 12,
+            damage: 25,
+            type: "enemy",
+            color: "#ec4899",
+          });
+        }
+
+        defeatBoss() {
+          this.score += 5000 * (this.activePowerups.doubleXP.active ? 2 : 1);
+          this.createExplosion(this.boss.x, this.boss.y, 160);
+          this.showNotification("BOSS DEFEATED", "Massive bonus awarded!");
+
+          for (let i = 0; i < 5; i++) {
+            this.spawnPowerupDrop(
+              this.boss.x + Math.random() * 120 - 60,
+              this.boss.y + Math.random() * 80 - 40
+            );
+          }
+
+          this.boss = null;
+          this.bossActive = false;
+          document.getElementById("bossHealth").style.display = "none";
+
+          this.wave++;
+          this.level = Math.floor(this.wave / 5) + 1;
+
+          this.gameState = "running";
+          document.getElementById("missionStatus").textContent = "ENGAGED";
+        }
+
+        damagePlayer(amount) {
+          if (this.activePowerups.shield.active) {
+            this.player.shield -= amount;
+            if (this.player.shield < 0) {
+              this.player.health += this.player.shield;
+              this.player.shield = 0;
+            }
+          } else {
+            this.player.health -= amount;
+          }
+
+          if (this.player.health <= 0) {
+            this.lives--;
+            this.player.health = 100;
+            this.player.shield = 0;
+            this.createExplosion(this.player.x, this.player.y, 70);
+
+            if (this.lives > 0) {
+              this.showNotification(
+                "Ship Destroyed",
+                `${this.lives} lives remaining`
+              );
+              this.player.isInvulnerable = true;
+              this.player.invulnerableTimer = 180;
+            }
+          } else {
+            this.player.isInvulnerable = true;
+            this.player.invulnerableTimer = 70;
+          }
+        }
+
+        gameOver() {
+          this.gameState = "gameover";
+          document.getElementById("missionStatus").textContent =
+            "MISSION FAILED";
+
+          if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem("quantumHighScore", String(this.score));
+            this.showNotification("NEW HIGH SCORE!", `Score: ${this.score}`);
+          } else {
+            this.showNotification(
+              "Mission Failed",
+              `Final Score: ${this.score}`
+            );
+          }
+        }
+
+        // FIX: all objects are center-based => center AABB collision
+        checkCollision(a, b) {
+          return (
+            Math.abs(a.x - b.x) < (a.width + b.width) / 2 &&
+            Math.abs(a.y - b.y) < (a.height + b.height) / 2
+          );
+        }
+
+        createParticle(x, y, count = 10, color = null) {
+          for (let i = 0; i < count; i++) {
+            this.particles.push({
+              x,
+              y,
+              vx: Math.random() * 4 - 2,
+              vy: Math.random() * 4 - 2,
+              life: 32,
+              maxLife: 32,
+              color: color || `hsl(${Math.random() * 360}, 100%, 60%)`,
+              size: Math.random() * 3 + 1,
+            });
+          }
+        }
+
+        updateParticles() {
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life--;
+            if (p.life <= 0) this.particles.splice(i, 1);
+          }
+        }
+
+        createExplosion(x, y, size) {
+          this.explosions.push({ x, y, size, life: 32, maxLife: 32 });
+          this.createParticle(
+            x,
+            y,
+            Math.max(12, Math.floor(size / 3)),
+            "#ffb020"
+          );
+          this.playSound("explosion");
+        }
+
+        updateExplosions() {
+          for (let i = this.explosions.length - 1; i >= 0; i--) {
+            const ex = this.explosions[i];
+            ex.life--;
+            if (ex.life <= 0) this.explosions.splice(i, 1);
+          }
+        }
+
+        createMuzzleFlash(x, y) {
+          this.createParticle(x, y, 8, "#00ffff");
+        }
+        createHitEffect(x, y) {
+          this.createParticle(x, y, 6, "#8b5cf6");
+        }
+        createCollectEffect(x, y) {
+          this.createParticle(x, y, 24, "#ec4899");
+        }
+
+        showCombo() {
+          const el = document.getElementById("comboDisplay");
+          el.textContent = `x${this.combo} COMBO!`;
+          el.style.opacity = "1";
+          el.style.transform = "translate(-50%, -50%) scale(1)";
+          setTimeout(() => {
+            el.style.opacity = "0";
+            el.style.transform = "translate(-50%, -50%) scale(0.6)";
+          }, 900);
+        }
+
+        resetCombo() {
+          if (this.combo >= 10) {
+            const bonus = this.combo * 50;
+            this.score += bonus;
+            this.showNotification("Combo Bonus", `+${bonus} points!`);
+          }
+          this.combo = 0;
+        }
+
+        showNotification(title, message) {
+          const wrap = document.getElementById("notificationCenter");
+          const n = document.createElement("div");
+          n.className = "notification";
+          n.innerHTML = `
+            <div class="notification-title">
+              <i class="fas fa-info-circle"></i>
+              ${title}
+            </div>
+            <div class="notification-message">${message}</div>
+          `;
+          wrap.appendChild(n);
+          setTimeout(() => n.classList.add("show"), 10);
+          setTimeout(() => {
+            n.classList.remove("show");
+            setTimeout(() => n.remove(), 250);
+          }, 2800);
+        }
+
+        // OPTIONAL: real sound later; now keep silent but functional
+        playSound(_) {}
+
+        showUpgradeMenu() {
+          if (!(this.gameState === "running" || this.gameState === "boss"))
+            return;
+
+          const upgrades = [
+            {
+              name: "Faster Shooting",
+              cost: 1000,
+              action: () =>
+                (this.player.shotCooldown = Math.max(
+                  60,
+                  this.player.shotCooldown * 0.82
+                )),
+            },
+            {
+              name: "Stronger Shields",
+              cost: 1500,
+              action: () =>
+                (this.player.shield = Math.min(150, this.player.shield + 50)),
+            },
+            {
+              name: "Increased Speed",
+              cost: 800,
+              action: () => (this.player.speed += 1.5),
+            },
+            { name: "Extra Life", cost: 3000, action: () => (this.lives += 1) },
+          ];
+
+          const affordable = upgrades.filter((u) => this.score >= u.cost);
+          if (affordable.length === 0) {
+            this.showNotification(
+              "Insufficient Funds",
+              "Earn more points to upgrade!"
+            );
+            return;
+          }
+
+          const pick =
+            affordable[Math.floor(Math.random() * affordable.length)];
+          this.score -= pick.cost;
+          pick.action();
+          this.showNotification("Upgrade Purchased", `${pick.name} activated!`);
+        }
+
+        updateUI() {
+          document.getElementById("scoreDisplay").textContent = this.score;
+          document.getElementById("levelDisplay").textContent = this.level;
+          document.getElementById("livesDisplay").textContent = this.lives;
+          document.getElementById("waveDisplay").textContent = this.wave;
+
+          const hp = Math.max(0, Math.min(100, this.player.health));
+          document.getElementById("healthBar").style.width = hp + "%";
+          document.getElementById("healthValue").textContent =
+            Math.round(hp) + "%";
+
+          const sh = Math.max(0, Math.min(100, this.player.shield));
+          document.getElementById("shieldBar").style.width = sh + "%";
+          document.getElementById("shieldValue").textContent =
+            Math.round(sh) + "%";
+
+          const en = Math.max(0, Math.min(100, this.player.energy));
+          document.getElementById("energyBar").style.width = en + "%";
+          document.getElementById("energyValue").textContent =
+            Math.round(en) + "%";
+        }
+
+        draw() {
+          const ctx = this.ctx;
+          const w = this.width;
+          const h = this.height;
+
+          // background
+          const g = ctx.createLinearGradient(0, 0, w, h);
+          g.addColorStop(0, "#0a0a1a");
+          g.addColorStop(1, "#1e1b4b");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+
+          // particles
+          for (const p of this.particles) {
+            const a = p.life / p.maxLife;
+            ctx.globalAlpha = a;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+          ctx.globalAlpha = 1;
+
+          // explosions
+          for (const ex of this.explosions) {
+            const a = ex.life / ex.maxLife;
+            const r = ex.size * a;
+
+            const rg = ctx.createRadialGradient(ex.x, ex.y, 0, ex.x, ex.y, r);
+            rg.addColorStop(0, `rgba(255, 160, 0, ${a})`);
+            rg.addColorStop(1, `rgba(255, 160, 0, 0)`);
+
+            ctx.fillStyle = rg;
+            ctx.beginPath();
+            ctx.arc(ex.x, ex.y, r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // powerups
+          const puColors = {
+            rapidFire: "#00ffff",
+            shield: "#3b82f6",
+            spreadShot: "#ec4899",
+            timeSlow: "#8b5cf6",
+            magnet: "#f59e0b",
+            doubleXP: "#10b981",
+          };
+
+          for (const p of this.powerups) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(Date.now() * 0.002);
+
+            ctx.fillStyle = puColors[p.type] || "#fff";
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.shadowBlur = 14;
+
+            ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height);
+
+            ctx.shadowBlur = 0;
+            ctx.restore();
+          }
+
+          // bullets
+          for (const b of this.bullets) {
+            ctx.fillStyle =
+              b.color || (b.type === "player" ? "#00ffff" : "#f59e0b");
+            if (b.type === "player") {
+              ctx.shadowColor = "#00ffff";
+              ctx.shadowBlur = 10;
+            } else {
+              ctx.shadowBlur = 0;
+            }
+            ctx.fillRect(
+              b.x - b.width / 2,
+              b.y - b.height / 2,
+              b.width,
+              b.height
+            );
+            ctx.shadowBlur = 0;
+          }
+
+          // enemies
+          for (const e of this.enemies) {
+            ctx.save();
+            ctx.translate(e.x, e.y);
+
+            ctx.fillStyle = e.color;
+            ctx.beginPath();
+            ctx.moveTo(0, -e.height / 2);
+            ctx.lineTo(e.width / 2, e.height / 2);
+            ctx.lineTo(-e.width / 2, e.height / 2);
+            ctx.closePath();
+            ctx.fill();
+
+            // health bar (only if hurt)
+            if (e.health < e.maxHealth) {
+              const hp = Math.max(0, e.health / e.maxHealth);
+              ctx.fillStyle = "rgba(0,0,0,0.6)";
+              ctx.fillRect(-e.width / 2, -e.height / 2 - 10, e.width, 4);
+              ctx.fillStyle = "#10b981";
+              ctx.fillRect(-e.width / 2, -e.height / 2 - 10, e.width * hp, 4);
+            }
+
+            ctx.restore();
+          }
+
+          // boss
+          if (this.boss) {
+            ctx.save();
+            ctx.translate(this.boss.x, this.boss.y);
+
+            ctx.fillStyle = "#ec4899";
+            ctx.shadowColor = "#ec4899";
+            ctx.shadowBlur = 18;
+
+            ctx.beginPath();
+            ctx.moveTo(0, -this.boss.height / 2);
+            ctx.lineTo(this.boss.width / 2, this.boss.height / 4);
+            ctx.lineTo(this.boss.width / 4, this.boss.height / 2);
+            ctx.lineTo(-this.boss.width / 4, this.boss.height / 2);
+            ctx.lineTo(-this.boss.width / 2, this.boss.height / 4);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = "#8b5cf6";
+            ctx.beginPath();
+            ctx.arc(0, 0, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+          }
+
+          // player
+          ctx.save();
+          ctx.translate(this.player.x, this.player.y);
+
+          // shield ring
+          if (this.activePowerups.shield.active || this.player.isInvulnerable) {
+            const a = this.player.isInvulnerable ? 0.55 : 0.3;
+            ctx.strokeStyle = `rgba(0, 255, 255, ${a})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, this.player.width + 12, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          // ship
+          ctx.fillStyle = this.player.isInvulnerable
+            ? "rgba(99, 102, 241, 0.55)"
+            : "#6366f1";
+          ctx.shadowColor = "#6366f1";
+          ctx.shadowBlur = 14;
+
+          ctx.beginPath();
+          ctx.moveTo(0, -this.player.height / 2);
+          ctx.lineTo(this.player.width / 2, this.player.height / 2);
+          ctx.lineTo(0, this.player.height / 4);
+          ctx.lineTo(-this.player.width / 2, this.player.height / 2);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.shadowBlur = 0;
+
+          // engine glow
+          const eg = ctx.createRadialGradient(
+            0,
+            this.player.height / 3,
+            0,
+            0,
+            this.player.height / 3,
+            22
+          );
+          eg.addColorStop(0, "rgba(0, 255, 255, 0.8)");
+          eg.addColorStop(1, "rgba(0, 255, 255, 0)");
+          ctx.fillStyle = eg;
+          ctx.fillRect(-16, this.player.height / 4, 32, 34);
+
+          ctx.restore();
+
+          // overlays
+          if (this.gameState === "ready") {
+            this.drawOverlay(
+              "QUANTUM DEFENDER",
+              "Click or press LAUNCH to begin mission",
+              "#00ffff"
+            );
+          } else if (this.gameState === "paused") {
+            this.drawOverlay(
+              "MISSION PAUSED",
+              "Press P or click PAUSE to resume",
+              "#f59e0b"
+            );
+          } else if (this.gameState === "gameover") {
+            this.drawOverlay(
+              "MISSION FAILED",
+              `Final Score: ${this.score}  |  High Score: ${this.highScore}`,
+              "#ef4444"
+            );
+          }
+
+          // combo HUD
+          if (this.combo > 1) {
+            ctx.fillStyle = "#ec4899";
+            ctx.font = "bold 22px Orbitron";
+            ctx.textAlign = "right";
+            ctx.fillText(`COMBO x${this.combo}`, w - 18, 34);
+          }
+        }
+
+        drawOverlay(title, subtitle, color) {
+          const ctx = this.ctx;
+          const w = this.width;
+          const h = this.height;
+
+          ctx.fillStyle = "rgba(0,0,0,0.72)";
+          ctx.fillRect(0, 0, w, h);
+
+          ctx.fillStyle = color;
+          ctx.font = "bold 46px Orbitron";
+          ctx.textAlign = "center";
+          ctx.fillText(title, w / 2, h / 2 - 34);
+
+          ctx.fillStyle = "rgba(255,255,255,0.85)";
+          ctx.font = "18px Orbitron";
+          ctx.fillText(subtitle, w / 2, h / 2 + 18);
+
+          ctx.fillStyle = "rgba(255,255,255,0.65)";
+          ctx.font = "14px Orbitron";
+          ctx.fillText(
+            "Controls: ← → / A D move • SPACE shoot • Hold CLICK for autofire • P pause",
+            w / 2,
+            h / 2 + 62
+          );
+        }
+
+        gameLoop() {
+          this.update();
+          this.draw();
+          requestAnimationFrame(() => this.gameLoop());
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const game = new QuantumDefender();
+        window.quantumGame = game;
+      });
+    </script>
+  </body>
+</html>

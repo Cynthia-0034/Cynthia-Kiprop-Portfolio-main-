@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coming Soon</title>
+    <style>
+      body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        text-align: center;
+        padding: 40px;
+        max-width: 600px;
+      }
+      .emoji {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+      h1 {
+        color: #f8fafc;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }
+      p {
+        color: #cbd5e1;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #818cf8, #6366f1);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      }
+    </style>
+  </head>
+  <body class="is-loading">
+    <!-- Page Loader (shows ~2s) -->
+    <div
+      id="page-loader"
+      class="page-loader"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading"
+    >
+      <div class="loader-backdrop"></div>
+
+      <div class="loader-center">
+        <div class="loader-orbit" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-2" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-3" aria-hidden="true"></div>
+
+        <div class="loader-card">
+          <div class="loader-brand">
+            <span class="loader-mark" aria-hidden="true"></span>
+            <div class="loader-text">
+              <div class="loader-name">Cynthia J Kiprop</div>
+              <div class="loader-tagline">Design • Web • Data</div>
+            </div>
+          </div>
+
+          <div class="loader-progress" aria-hidden="true">
+            <span class="loader-bar"></span>
+          </div>
+
+          <div class="loader-hint">Loading the experience…</div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="emoji">🚧</div>
+      <h1>Work in Progress</h1>
+      <p>
+        This page is currently under construction. I'm working hard to bring you
+        an amazing experience!
+      </p>
+      <p>
+        Check back soon or
+        <a href="../#contact" style="color: #818cf8">contact me</a> to get
+        notified when it's ready.
+      </p>
+      <a href="javascript:history.back()" class="btn">← Go Back</a>
+    </div>
+  </body>
+</html>

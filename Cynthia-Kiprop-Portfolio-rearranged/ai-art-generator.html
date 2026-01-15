@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Art Lab | Cynthia Kiprop</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #7c3aed; /* toned down violet */
+        --secondary: #10b981;
+        --accent: #f59e0b;
+        --danger: #ef4444;
+
+        --bg: #0b1020;
+        --panel: rgba(18, 24, 44, 0.85);
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #eef2ff;
+        --muted: #aab3cf;
+
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: radial-gradient(
+            1200px 600px at 20% 10%,
+            rgba(124, 58, 237, 0.18),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 500px at 90% 30%,
+            rgba(16, 185, 129, 0.1),
+            transparent 55%
+          ),
+          linear-gradient(180deg, #070a14, #0b1020 60%, #070a14);
+        color: var(--text);
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Subtle grid (no heavy animation) */
+      .bg-grid {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.18;
+        background-image: linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(
+          circle at 30% 10%,
+          black 0%,
+          transparent 70%
+        );
+      }
+
+      /* Header */
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(10, 14, 28, 0.82);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+      }
+
+      .logo i {
+        color: var(--primary);
+        font-size: 1.35rem;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .version {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      /* Layout */
+      .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1.25rem;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 1.25rem;
+        min-height: calc(100vh - 72px);
+      }
+
+      @media (max-width: 1024px) {
+        .main-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Canvas Card */
+      .canvas-container {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      .canvas-header {
+        padding: 1rem 1.1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      .canvas-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.4rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        color: var(--text);
+        border: 1px solid rgba(124, 58, 237, 0.35);
+        background: rgba(124, 58, 237, 0.12);
+      }
+
+      canvas {
+        width: 100%;
+        height: 520px;
+        display: block;
+        background: #070a14;
+      }
+
+      /* Controls */
+      .control-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        box-shadow: var(--shadow);
+      }
+
+      .control-section {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .control-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+      }
+
+      .btn {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.75rem 0.9rem;
+        border-radius: 12px;
+        font-weight: 650;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.15s ease,
+          border-color 0.15s ease;
+        width: 100%;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(124, 58, 237, 0.35);
+        transform: translateY(-1px);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: rgba(124, 58, 237, 0.18);
+        border-color: rgba(124, 58, 237, 0.4);
+      }
+
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.35);
+      }
+
+      .btn-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      @media (max-width: 768px) {
+        .btn-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Inputs */
+      .input-group {
+        margin-bottom: 0.75rem;
+      }
+      .input-label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .input-field,
+      select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.75rem 0.9rem;
+        color: var(--text);
+        font-size: 0.95rem;
+        outline: none;
+      }
+      .input-field:focus,
+      select:focus {
+        border-color: rgba(124, 58, 237, 0.55);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+      }
+
+      /* Slider */
+      .slider-container {
+        padding: 0.35rem 0 0.75rem;
+      }
+      .slider {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        outline: none;
+        -webkit-appearance: none;
+      }
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.85);
+      }
+
+      /* Toggles */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0.5rem 0;
+      }
+      .toggle-label {
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      .toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+      }
+      .toggle input {
+        display: none;
+      }
+      .toggle .track {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        transition: background 0.15s ease;
+      }
+      .toggle .thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        transition: transform 0.15s ease;
+      }
+      .toggle input:checked + .track {
+        background: rgba(124, 58, 237, 0.35);
+        border-color: rgba(124, 58, 237, 0.55);
+      }
+      .toggle input:checked ~ .thumb {
+        transform: translateX(20px);
+      }
+
+      /* Stats */
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stat-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* Loading */
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 2000;
+        backdrop-filter: blur(8px);
+      }
+      .loading-spinner {
+        width: 54px;
+        height: 54px;
+        border: 4px solid transparent;
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loading-text {
+        color: var(--text);
+        max-width: 420px;
+        text-align: center;
+        line-height: 1.55;
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 1.25rem;
+        right: 1.25rem;
+        background: rgba(18, 24, 44, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.25s ease;
+        z-index: 2100;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .toast i {
+        color: var(--secondary);
+      }
+
+      /* Gallery */
+      .gallery-container {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        backdrop-filter: blur(10px);
+        z-index: 2500;
+        padding: 1.25rem;
+        display: none;
+        flex-direction: column;
+      }
+      .gallery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1rem;
+      }
+      .gallery-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+      }
+      .gallery-grid {
+        flex: 1;
+        overflow: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .gallery-item {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+      .gallery-item:hover {
+        transform: translateY(-2px);
+        border-color: rgba(124, 58, 237, 0.45);
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+      }
+      .gallery-meta {
+        padding: 10px;
+        color: var(--muted);
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+    </style>
+  </head>
+
+  <body class="is-loading">
+    <!-- Page Loader (shows ~2s) -->
+    <div id="page-loader" class="page-loader" role="status" aria-live="polite" aria-label="Loading">
+      <div class="loader-backdrop"></div>
+
+      <div class="loader-center">
+        <div class="loader-orbit" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-2" aria-hidden="true"></div>
+        <div class="loader-orbit orbit-3" aria-hidden="true"></div>
+
+        <div class="loader-card">
+          <div class="loader-brand">
+            <span class="loader-mark" aria-hidden="true"></span>
+            <div class="loader-text">
+              <div class="loader-name">Cynthia J Kiprop</div>
+              <div class="loader-tagline">Design • Web • Data</div>
+            </div>
+          </div>
+
+          <div class="loader-progress" aria-hidden="true">
+            <span class="loader-bar"></span>
+          </div>
+
+          <div class="loader-hint">Loading the experience…</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">Generating…</div>
+    </div>
+
+    <!-- Gallery modal -->
+    <div
+      class="gallery-container"
+      id="galleryContainer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Gallery"
+    >
+      <div class="gallery-header">
+        <h2 class="gallery-title">Gallery</h2>
+        <button class="btn btn-danger" id="closeGalleryBtn">
+          <i class="fas fa-times"></i> Close
+        </button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <i class="fas fa-check-circle"></i>
+      <span id="toastMessage">Done</span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <i class="fas fa-palette"></i>
+        <span>ART LAB</span>
+      </div>
+      <div class="header-right">
+        <span class="version">v2.1</span>
+        <button class="btn" onclick="window.open('index.html', '_self')">
+          <i class="fas fa-arrow-left"></i> Back to Portfolio
+        </button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main-container">
+      <!-- Canvas -->
+      <section class="canvas-container">
+        <div class="canvas-header">
+          <div class="canvas-title">
+            <i class="fas fa-brush"></i>
+            <span>Canvas</span>
+          </div>
+          <div class="badge">
+            <i class="fas fa-bolt"></i>
+            <span>Generation <span id="generationCount">1</span></span>
+          </div>
+        </div>
+        <canvas id="artCanvas"></canvas>
+      </section>
+
+      <!-- Controls -->
+      <aside class="control-panel">
+        <div class="control-section">
+          <h3 class="section-title">Generate</h3>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="generateBtn">
+              <i class="fas fa-wand-magic-sparkles"></i> Generate
+            </button>
+            <button class="btn" id="remixBtn">
+              <i class="fas fa-shuffle"></i> Remix
+            </button>
+          </div>
+          <div class="btn-group" style="margin-top: 10px">
+            <button class="btn" id="animateBtn">
+              <i class="fas fa-play"></i> Animate
+            </button>
+            <button class="btn" id="saveBtn">
+              <i class="fas fa-download"></i> Save PNG
+            </button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3 class="section-title">Inspiration</h3>
+          <div class="input-group">
+            <label class="input-label" for="promptInput"
+              >Prompt (optional)</label
+            >
+            <input
+              type="text"
+              class="input-field"
+              id="promptInput"
+              placeholder="e.g., calm nebula, geometric balance, soft gradients"
+            />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="seedInput"
+              >Seed (reproducible)</label
+            >
+            <input
+              type="text"
+              class="input-field"
+              id="seedInput"
+              placeholder="Leave empty for random"
+            />
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3 class="section-title">Style</h3>
+          <select id="styleSelect" class="input-field" aria-label="Art style">
+            <option value="abstract">Abstract Waves</option>
+            <option value="cyberpunk">Cyberpunk City</option>
+            <option value="cosmic">Cosmic Nebula</option>
+            <option value="fluid">Fluid Paint</option>
+            <option value="geometric">Geometric Harmony</option>
+            <option value="organic">Organic Growth</option>
+            <option value="neural">Neural Network</option>
+            <option value="surreal">Surreal Dream</option>
+          </select>
+        </div>
+
+        <div class="control-section">
+          <h3 class="section-title">Controls</h3>
+
+          <div class="slider-container">
+            <div class="input-label">
+              Complexity: <span id="complexityValue">7</span>
+            </div>
+            <input
+              type="range"
+              class="slider"
+              id="complexitySlider"
+              min="1"
+              max="10"
+              value="7"
+            />
+          </div>
+
+          <div class="slider-container">
+            <div class="input-label">
+              Color Intensity: <span id="intensityValue">8</span>
+            </div>
+            <input
+              type="range"
+              class="slider"
+              id="intensitySlider"
+              min="1"
+              max="10"
+              value="8"
+            />
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">AI Enhancement</span>
+            <div class="toggle" title="Subtle post-processing polish">
+              <input type="checkbox" id="aiModeToggle" checked />
+              <span class="track"></span>
+              <span class="thumb"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3 class="section-title">Stats</h3>
+          <div class="stats">
+            <div class="stat-item">
+              <div class="stat-value" id="layerCount">0</div>
+              <div class="stat-label">Layers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="renderTime">0</div>
+              <div class="stat-label">ms</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="particleCount">0</div>
+              <div class="stat-label">Elements</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="memoryUsage">0</div>
+              <div class="stat-label">MB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <button class="btn" id="galleryBtn">
+            <i class="fas fa-images"></i> Open Gallery
+          </button>
+          <button
+            class="btn btn-danger"
+            id="clearGalleryBtn"
+            style="margin-top: 10px"
+          >
+            <i class="fas fa-trash"></i> Clear Gallery
+          </button>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      // -----------------------------
+      // Small utilities (seeded RNG)
+      // -----------------------------
+      function hashStringToUint(str) {
+        // FNV-1a-ish
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function nowMs() {
+        return Math.round(performance.now());
+      }
+
+      // -----------------------------
+      // Main App
+      // -----------------------------
+      class ArtLab {
+        constructor() {
+          this.canvas = document.getElementById("artCanvas");
+          this.ctx = this.canvas.getContext("2d", { alpha: false });
+
+          this.generation = 1;
+          this.complexity = 7;
+          this.intensity = 8;
+          this.isAnimating = false;
+
+          this.animFrame = null;
+          this.animT = 0;
+
+          // click interactions
+          this.ripples = [];
+          this.mouseTrail = [];
+
+          // gallery
+          this.gallery = JSON.parse(
+            localStorage.getItem("artlab_gallery") || "[]"
+          );
+
+          // internal render stats
+          this.lastLayers = 0;
+          this.lastElements = 0;
+
+          this.bindUI();
+          this.resizeCanvas();
+          window.addEventListener("resize", () => this.resizeCanvas());
+
+          // initial render
+          this.generate({ withLoading: false, saveToGallery: false });
+          this.updateStats(0);
+          this.updateGenerationLabel();
+        }
+
+        bindUI() {
+          this.$ = (id) => document.getElementById(id);
+
+          this.$("generateBtn").addEventListener("click", () =>
+            this.generate({ withLoading: true, saveToGallery: true })
+          );
+          this.$("remixBtn").addEventListener("click", () => this.remix());
+          this.$("animateBtn").addEventListener("click", () =>
+            this.toggleAnimation()
+          );
+          this.$("saveBtn").addEventListener("click", () => this.savePNG());
+          this.$("galleryBtn").addEventListener("click", () =>
+            this.openGallery()
+          );
+          this.$("closeGalleryBtn").addEventListener("click", () =>
+            this.closeGallery()
+          );
+          this.$("clearGalleryBtn").addEventListener("click", () =>
+            this.clearGallery()
+          );
+
+          this.$("complexitySlider").addEventListener("input", (e) => {
+            this.complexity = parseInt(e.target.value, 10);
+            this.$("complexityValue").textContent = this.complexity;
+            if (!this.isAnimating)
+              this.generate({ withLoading: false, saveToGallery: false });
+          });
+
+          this.$("intensitySlider").addEventListener("input", (e) => {
+            this.intensity = parseInt(e.target.value, 10);
+            this.$("intensityValue").textContent = this.intensity;
+            if (!this.isAnimating)
+              this.generate({ withLoading: false, saveToGallery: false });
+          });
+
+          this.$("styleSelect").addEventListener("change", () => {
+            if (!this.isAnimating)
+              this.generate({ withLoading: false, saveToGallery: false });
+          });
+
+          // Canvas interactions (practical + lightweight)
+          this.canvas.addEventListener("click", (e) => this.onCanvasClick(e));
+          this.canvas.addEventListener("mousemove", (e) =>
+            this.onCanvasMove(e)
+          );
+
+          // escape closes gallery
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") this.closeGallery();
+          });
+        }
+
+        resizeCanvas() {
+          const dpr = window.devicePixelRatio || 1;
+          const container = this.canvas.parentElement;
+          const rect = container.getBoundingClientRect();
+
+          const cssW = Math.max(320, Math.floor(rect.width));
+          const cssH = 520;
+
+          // prevent cumulative scale bug
+          this.canvas.style.width = cssW + "px";
+          this.canvas.style.height = cssH + "px";
+          this.canvas.width = Math.floor(cssW * dpr);
+          this.canvas.height = Math.floor(cssH * dpr);
+
+          this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          if (!this.isAnimating)
+            this.generate({ withLoading: false, saveToGallery: false });
+        }
+
+        getSeededRng() {
+          const prompt = (this.$("promptInput").value || "")
+            .trim()
+            .toLowerCase();
+          const seedText = (this.$("seedInput").value || "").trim();
+
+          const base = seedText ? seedText : String(Date.now());
+          const combined = `${base}::${prompt}::${this.$("styleSelect").value}`;
+
+          const seed = hashStringToUint(combined);
+          return { rng: mulberry32(seed), seed };
+        }
+
+        paletteFromPrompt(rng, prompt) {
+          // prompt influences palette selection in a simple, practical way
+          const palettes = [
+            ["#7c3aed", "#10b981", "#f59e0b", "#60a5fa", "#f472b6"],
+            ["#0ea5e9", "#22c55e", "#a855f7", "#f97316", "#eab308"],
+            ["#60a5fa", "#34d399", "#fda4af", "#c084fc", "#fbbf24"],
+            ["#94a3b8", "#7c3aed", "#10b981", "#f59e0b", "#ef4444"],
+            ["#38bdf8", "#a78bfa", "#fb7185", "#4ade80", "#facc15"],
+          ];
+          const idx = Math.floor(rng() * palettes.length);
+
+          // if prompt includes mood words, nudge index
+          const p = prompt.toLowerCase();
+          let nudge = 0;
+          if (p.includes("calm") || p.includes("soft") || p.includes("minimal"))
+            nudge = 3;
+          if (
+            p.includes("neon") ||
+            p.includes("cyber") ||
+            p.includes("electric")
+          )
+            nudge = 1;
+          if (
+            p.includes("cosmic") ||
+            p.includes("nebula") ||
+            p.includes("space")
+          )
+            nudge = 2;
+
+          return palettes[(idx + nudge) % palettes.length];
+        }
+
+        showLoading(message = "Generating…") {
+          this.$("loadingText").textContent = message;
+          this.$("loadingOverlay").style.display = "flex";
+        }
+
+        hideLoading() {
+          this.$("loadingOverlay").style.display = "none";
+        }
+
+        toast(message) {
+          const t = this.$("toast");
+          this.$("toastMessage").textContent = message;
+          t.classList.add("show");
+          clearTimeout(this._toastTimer);
+          this._toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+        }
+
+        updateGenerationLabel() {
+          this.$("generationCount").textContent = String(this.generation);
+        }
+
+        updateStats(renderTimeMs) {
+          this.$("renderTime").textContent = String(renderTimeMs);
+          this.$("layerCount").textContent = String(this.lastLayers);
+          this.$("particleCount").textContent = String(this.lastElements);
+
+          const mb = Math.round(
+            (this.canvas.width * this.canvas.height * 4) / (1024 * 1024)
+          );
+          this.$("memoryUsage").textContent = String(mb);
+        }
+
+        onCanvasClick(e) {
+          const rect = this.canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          this.ripples.push({ x, y, r: 0, a: 0.9 });
+          this.toast("Interaction added");
+          if (!this.isAnimating)
+            this.generate({ withLoading: false, saveToGallery: false });
+        }
+
+        onCanvasMove(e) {
+          const rect = this.canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          // light trail (practical and cheap)
+          this.mouseTrail.push({ x, y, life: 1.0 });
+          if (this.mouseTrail.length > 140) this.mouseTrail.shift();
+        }
+
+        clearCanvasBg(palette) {
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          const g = this.ctx.createLinearGradient(0, 0, w, h);
+          g.addColorStop(0, "#070a14");
+          g.addColorStop(1, "#0b1020");
+          this.ctx.fillStyle = g;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // subtle vignette
+          const v = this.ctx.createRadialGradient(
+            w / 2,
+            h / 2,
+            60,
+            w / 2,
+            h / 2,
+            Math.max(w, h) / 1.2
+          );
+          v.addColorStop(0, "rgba(255,255,255,0.02)");
+          v.addColorStop(1, "rgba(0,0,0,0.55)");
+          this.ctx.fillStyle = v;
+          this.ctx.fillRect(0, 0, w, h);
+        }
+
+        applyAIEnhancement() {
+          // practical "AI" polish: contrast + mild grain + edge glow (very subtle)
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          const img = this.ctx.getImageData(0, 0, w, h);
+          const d = img.data;
+
+          const contrast = 1.06;
+          const brightness = 2; // tiny lift
+
+          for (let i = 0; i < d.length; i += 4) {
+            // contrast around 128
+            d[i] = clamp((d[i] - 128) * contrast + 128 + brightness, 0, 255);
+            d[i + 1] = clamp(
+              (d[i + 1] - 128) * contrast + 128 + brightness,
+              0,
+              255
+            );
+            d[i + 2] = clamp(
+              (d[i + 2] - 128) * contrast + 128 + brightness,
+              0,
+              255
+            );
+
+            // subtle grain
+            const n = (Math.random() - 0.5) * 3;
+            d[i] = clamp(d[i] + n, 0, 255);
+            d[i + 1] = clamp(d[i + 1] + n, 0, 255);
+            d[i + 2] = clamp(d[i + 2] + n, 0, 255);
+          }
+
+          this.ctx.putImageData(img, 0, 0);
+        }
+
+        drawRipples(palette) {
+          const ctx = this.ctx;
+          for (const rp of this.ripples) {
+            ctx.beginPath();
+            ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(124,58,237,${rp.a})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            rp.r += 6;
+            rp.a -= 0.03;
+          }
+          this.ripples = this.ripples.filter((r) => r.a > 0);
+        }
+
+        drawTrail(palette) {
+          const ctx = this.ctx;
+          for (const p of this.mouseTrail) {
+            ctx.fillStyle = `rgba(96,165,250,${p.life * 0.18})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+            p.life -= 0.03;
+          }
+          this.mouseTrail = this.mouseTrail.filter((p) => p.life > 0);
+        }
+
+        // -----------------------------
+        // Generators (all implemented)
+        // -----------------------------
+        generateAbstract({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          const layers = 4 + Math.floor(this.complexity * 1.6);
+          let elements = 0;
+
+          // waves
+          for (let i = 0; i < layers; i++) {
+            const baseY = (i + 1) * (h / (layers + 1));
+            const amp = lerp(12, 85, this.intensity / 10) * (0.5 + rng());
+            const freq = lerp(0.006, 0.02, rng());
+            const thickness = lerp(1.5, 4.5, rng());
+
+            ctx.beginPath();
+            for (let x = 0; x <= w; x += 6) {
+              const y =
+                baseY +
+                Math.sin(x * freq + this.animT * 0.7 + i) *
+                  amp *
+                  (0.6 + rng() * 0.6);
+              if (x === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+
+            const c = palette[i % palette.length];
+            ctx.strokeStyle = this.hexToRgba(
+              c,
+              0.22 + (this.intensity / 10) * 0.22
+            );
+            ctx.lineWidth = thickness;
+            ctx.stroke();
+            elements++;
+          }
+
+          // soft blobs
+          const blobCount = 10 + this.complexity * 4;
+          for (let i = 0; i < blobCount; i++) {
+            const x = rng() * w;
+            const y = rng() * h;
+            const r = lerp(20, 140, rng()) * (this.intensity / 10);
+            const c = palette[Math.floor(rng() * palette.length)];
+            const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+            g.addColorStop(0, this.hexToRgba(c, 0.16));
+            g.addColorStop(1, this.hexToRgba(c, 0.0));
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+          }
+
+          return { layers, elements };
+        }
+
+        generateCyberpunk({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          // subtle horizon glow
+          const g = ctx.createLinearGradient(0, 0, 0, h);
+          g.addColorStop(0, "#070a14");
+          g.addColorStop(0.7, "#0b1020");
+          g.addColorStop(1, "rgba(124,58,237,0.10)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+
+          // grid floor (toned down)
+          ctx.strokeStyle = "rgba(56,189,248,0.10)";
+          ctx.lineWidth = 1;
+          const grid = 48;
+          for (let x = 0; x <= w; x += grid) {
+            ctx.beginPath();
+            ctx.moveTo(x, h * 0.55);
+            ctx.lineTo(x, h);
+            ctx.stroke();
+            elements++;
+          }
+          for (let y = h * 0.55; y <= h; y += grid) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+            elements++;
+          }
+
+          // skyline
+          const buildings = 6 + this.complexity;
+          for (let i = 0; i < buildings; i++) {
+            const bw = lerp(40, 90, rng());
+            const bx = (i / buildings) * w + lerp(-20, 20, rng());
+            const bh = lerp(120, 360, rng());
+            const by = h * 0.55 - bh;
+
+            ctx.fillStyle = "rgba(255,255,255,0.05)";
+            ctx.fillRect(bx, by, bw, bh);
+            elements++;
+
+            // windows
+            const rows = Math.floor(bh / 18);
+            const cols = Math.floor(bw / 14);
+            const winColor = this.hexToRgba(palette[i % palette.length], 0.22);
+            ctx.fillStyle = winColor;
+
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                if (rng() > 0.55) continue;
+                const wx = bx + 4 + c * 14;
+                const wy = by + 6 + r * 18;
+                ctx.fillRect(wx, wy, 7, 10);
+                elements++;
+              }
+            }
+          }
+
+          // signs (small accent)
+          const signCount = 4 + Math.floor(this.complexity / 2);
+          for (let i = 0; i < signCount; i++) {
+            const x = rng() * w * 0.85;
+            const y = rng() * h * 0.45 + 30;
+            const sw = lerp(60, 140, rng());
+            const sh = lerp(14, 26, rng());
+            const c = palette[Math.floor(rng() * palette.length)];
+            ctx.fillStyle = this.hexToRgba(
+              c,
+              0.22 + (this.intensity / 10) * 0.08
+            );
+            ctx.fillRect(x, y, sw, sh);
+            elements++;
+          }
+
+          return { layers: 3 + Math.floor(this.complexity / 3), elements };
+        }
+
+        generateCosmic({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          const bg = ctx.createRadialGradient(
+            w / 2,
+            h / 2,
+            20,
+            w / 2,
+            h / 2,
+            Math.max(w, h) / 1.1
+          );
+          bg.addColorStop(0, "rgba(96,165,250,0.06)");
+          bg.addColorStop(1, "rgba(0,0,0,0.75)");
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, w, h);
+
+          // stars
+          const stars = 160 + this.complexity * 55;
+          for (let i = 0; i < stars; i++) {
+            const x = rng() * w;
+            const y = rng() * h;
+            const r = rng() * 1.6 + 0.2;
+            const a = 0.25 + rng() * 0.6;
+            ctx.fillStyle = `rgba(255,255,255,${a})`;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+          }
+
+          // nebula blobs
+          const blobs = 4 + Math.floor(this.complexity / 2);
+          for (let i = 0; i < blobs; i++) {
+            const x = rng() * w;
+            const y = rng() * h;
+            const r = lerp(90, 240, rng());
+            const c = palette[Math.floor(rng() * palette.length)];
+            const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+            g.addColorStop(
+              0,
+              this.hexToRgba(c, 0.18 + (this.intensity / 10) * 0.1)
+            );
+            g.addColorStop(1, this.hexToRgba(c, 0.0));
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+          }
+
+          // planet
+          if (this.complexity >= 6) {
+            const px = w * (0.25 + rng() * 0.5);
+            const py = h * (0.25 + rng() * 0.4);
+            const pr = lerp(28, 70, rng());
+            const c1 = palette[Math.floor(rng() * palette.length)];
+            const c2 = palette[Math.floor(rng() * palette.length)];
+            const pg = ctx.createRadialGradient(
+              px - pr * 0.3,
+              py - pr * 0.3,
+              0,
+              px,
+              py,
+              pr
+            );
+            pg.addColorStop(0, this.hexToRgba(c1, 0.95));
+            pg.addColorStop(1, this.hexToRgba(c2, 0.95));
+            ctx.fillStyle = pg;
+            ctx.beginPath();
+            ctx.arc(px, py, pr, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+
+            // ring
+            ctx.strokeStyle = this.hexToRgba("#ffffff", 0.12);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(px, py, pr * 1.5, pr * 0.55, -0.3, 0, Math.PI * 2);
+            ctx.stroke();
+            elements++;
+          }
+
+          return { layers: 3 + Math.floor(this.complexity / 2), elements };
+        }
+
+        generateFluid({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          // fluid cells using layered bezier "pours"
+          const pours = 6 + this.complexity * 2;
+          for (let i = 0; i < pours; i++) {
+            const c = palette[Math.floor(rng() * palette.length)];
+            const alpha = 0.1 + (this.intensity / 10) * 0.14;
+            ctx.fillStyle = this.hexToRgba(c, alpha);
+
+            const x0 = rng() * w;
+            const y0 = rng() * h;
+            const x1 = x0 + lerp(-220, 220, rng());
+            const y1 = y0 + lerp(120, 320, rng());
+            const x2 = x0 + lerp(-240, 240, rng());
+            const y2 = y0 + lerp(-320, -120, rng());
+            const r = lerp(80, 200, rng());
+
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.bezierCurveTo(x1, y0 - r, x2, y0 + r, x0, y1);
+            ctx.bezierCurveTo(x2 + r, y2, x1 - r, y1, x0, y0);
+            ctx.closePath();
+            ctx.fill();
+            elements++;
+          }
+
+          // highlight strokes
+          ctx.lineWidth = 1.25;
+          ctx.strokeStyle = "rgba(255,255,255,0.08)";
+          for (let i = 0; i < 6; i++) {
+            ctx.beginPath();
+            const y = (i + 1) * (h / 7);
+            for (let x = 0; x <= w; x += 10) {
+              const yy =
+                y + Math.sin(x * 0.012 + this.animT + i) * (10 + rng() * 18);
+              if (x === 0) ctx.moveTo(x, yy);
+              else ctx.lineTo(x, yy);
+            }
+            ctx.stroke();
+            elements++;
+          }
+
+          return { layers: 3 + Math.floor(this.complexity / 2), elements };
+        }
+
+        generateGeometric({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          const shapes = 20 + this.complexity * 10;
+          for (let i = 0; i < shapes; i++) {
+            const x = rng() * w;
+            const y = rng() * h;
+            const size = lerp(12, 90, rng()) * (this.intensity / 10);
+            const rot = rng() * Math.PI * 2;
+            const c = palette[Math.floor(rng() * palette.length)];
+            const a = 0.1 + (this.intensity / 10) * 0.14;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rot);
+
+            ctx.strokeStyle = this.hexToRgba(c, a + 0.1);
+            ctx.fillStyle = this.hexToRgba(c, a);
+            ctx.lineWidth = 1.5;
+
+            const kind = Math.floor(rng() * 3);
+            if (kind === 0) {
+              ctx.beginPath();
+              ctx.rect(-size / 2, -size / 2, size, size);
+              ctx.fill();
+              ctx.stroke();
+            } else if (kind === 1) {
+              ctx.beginPath();
+              ctx.moveTo(0, -size / 2);
+              ctx.lineTo(size / 2, size / 2);
+              ctx.lineTo(-size / 2, size / 2);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+            } else {
+              ctx.beginPath();
+              ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+            }
+
+            ctx.restore();
+            elements++;
+          }
+
+          // connecting lines
+          const lineCount = 10 + this.complexity * 3;
+          ctx.strokeStyle = "rgba(255,255,255,0.05)";
+          ctx.lineWidth = 1;
+          for (let i = 0; i < lineCount; i++) {
+            ctx.beginPath();
+            ctx.moveTo(rng() * w, rng() * h);
+            ctx.lineTo(rng() * w, rng() * h);
+            ctx.stroke();
+            elements++;
+          }
+
+          return { layers: 4 + Math.floor(this.complexity / 2), elements };
+        }
+
+        generateOrganic({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          // branching growth (L-system-ish but simple)
+          const branches = 4 + Math.floor(this.complexity / 2);
+          for (let b = 0; b < branches; b++) {
+            const startX = rng() * w;
+            const startY = h * (0.72 + rng() * 0.22);
+            let angle = -Math.PI / 2 + lerp(-0.4, 0.4, rng());
+            let len = lerp(60, 130, rng());
+            let x = startX,
+              y = startY;
+            const steps = 14 + this.complexity * 4;
+
+            ctx.strokeStyle = this.hexToRgba(
+              palette[b % palette.length],
+              0.2 + (this.intensity / 10) * 0.08
+            );
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+
+            for (let i = 0; i < steps; i++) {
+              angle += lerp(-0.28, 0.28, rng());
+              const nx = x + Math.cos(angle) * len;
+              const ny = y + Math.sin(angle) * len;
+              ctx.lineTo(nx, ny);
+
+              // leaves
+              if (rng() > 0.7) {
+                ctx.save();
+                ctx.fillStyle = this.hexToRgba(
+                  palette[Math.floor(rng() * palette.length)],
+                  0.14
+                );
+                ctx.beginPath();
+                ctx.arc(nx, ny, lerp(6, 18, rng()), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                elements++;
+              }
+
+              x = nx;
+              y = ny;
+              len *= 0.88;
+              elements++;
+            }
+
+            ctx.stroke();
+            elements++;
+          }
+
+          return { layers: branches, elements };
+        }
+
+        generateNeural({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          // nodes
+          const nodes = 18 + this.complexity * 6;
+          const pts = [];
+          for (let i = 0; i < nodes; i++) {
+            pts.push({
+              x: rng() * w,
+              y: rng() * h,
+              r: lerp(3, 9, rng()) * (this.intensity / 10),
+              c: palette[Math.floor(rng() * palette.length)],
+            });
+          }
+
+          // connections
+          ctx.lineWidth = 1;
+          for (let i = 0; i < pts.length; i++) {
+            const a = pts[i];
+            for (let k = 0; k < 3; k++) {
+              const j = Math.floor(rng() * pts.length);
+              const b = pts[j];
+              const dx = a.x - b.x;
+              const dy = a.y - b.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist > 260) continue;
+
+              const alpha = (1 - dist / 260) * 0.18 * (this.intensity / 10);
+              ctx.strokeStyle = this.hexToRgba(a.c, alpha);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+              elements++;
+            }
+          }
+
+          // draw nodes
+          for (const p of pts) {
+            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3);
+            g.addColorStop(0, this.hexToRgba(p.c, 0.35));
+            g.addColorStop(1, this.hexToRgba(p.c, 0));
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+
+            ctx.fillStyle = this.hexToRgba("#ffffff", 0.22);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            elements++;
+          }
+
+          return { layers: 3 + Math.floor(this.complexity / 2), elements };
+        }
+
+        generateSurreal({ rng, palette }) {
+          const ctx = this.ctx;
+          const w = this.canvas.clientWidth;
+          const h = this.canvas.clientHeight;
+          let elements = 0;
+
+          // dream gradient
+          const bg = ctx.createLinearGradient(0, 0, w, h);
+          const c1 = palette[Math.floor(rng() * palette.length)];
+          const c2 = palette[Math.floor(rng() * palette.length)];
+          bg.addColorStop(0, this.hexToRgba(c1, 0.14));
+          bg.addColorStop(1, this.hexToRgba(c2, 0.1));
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, w, h);
+          elements++;
+
+          // floating "portals"
+          const portals = 6 + this.complexity;
+          for (let i = 0; i < portals; i++) {
+            const x = rng() * w;
+            const y = rng() * h;
+            const rw = lerp(40, 130, rng());
+            const rh = lerp(30, 110, rng());
+            const rot = lerp(-0.8, 0.8, rng());
+            const c = palette[Math.floor(rng() * palette.length)];
+            const a = 0.18 + (this.intensity / 10) * 0.1;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rot);
+            const g = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(rw, rh));
+            g.addColorStop(0, this.hexToRgba(c, a));
+            g.addColorStop(1, this.hexToRgba(c, 0));
+            ctx.fillStyle = g;
+
+            ctx.beginPath();
+            ctx.ellipse(0, 0, rw, rh, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            elements++;
+          }
+
+          // thin scribble lines
+          ctx.strokeStyle = "rgba(255,255,255,0.06)";
+          ctx.lineWidth = 1.2;
+          const lines = 8 + this.complexity * 2;
+          for (let i = 0; i < lines; i++) {
+            ctx.beginPath();
+            const sx = rng() * w;
+            const sy = rng() * h;
+            ctx.moveTo(sx, sy);
+            const seg = 8 + Math.floor(rng() * 10);
+            for (let j = 0; j < seg; j++) {
+              ctx.lineTo(
+                sx + lerp(-160, 160, rng()),
+                sy + lerp(-140, 140, rng())
+              );
+            }
+            ctx.stroke();
+            elements++;
+          }
+
+          return { layers: 3 + Math.floor(this.complexity / 2), elements };
+        }
+
+        hexToRgba(hex, a) {
+          const h = hex.replace("#", "");
+          const bigint = parseInt(
+            h.length === 3
+              ? h
+                  .split("")
+                  .map((ch) => ch + ch)
+                  .join("")
+              : h,
+            16
+          );
+          const r = (bigint >> 16) & 255;
+          const g = (bigint >> 8) & 255;
+          const b = bigint & 255;
+          return `rgba(${r},${g},${b},${a})`;
+        }
+
+        // -----------------------------
+        // Main render entry
+        // -----------------------------
+        generate({ withLoading, saveToGallery }) {
+          if (withLoading && !this.isAnimating) {
+            const msgs = [
+              "Generating composition…",
+              "Balancing colors…",
+              "Placing elements…",
+              "Rendering details…",
+            ];
+            this.showLoading(msgs[Math.floor(Math.random() * msgs.length)]);
+          }
+
+          const start = performance.now();
+
+          // Seeded RNG for reproducibility
+          const prompt = (this.$("promptInput").value || "").trim();
+          const { rng } = this.getSeededRng();
+          const palette = this.paletteFromPrompt(rng, prompt);
+
+          this.clearCanvasBg(palette);
+
+          const style = this.$("styleSelect").value;
+          let result = { layers: 0, elements: 0 };
+
+          switch (style) {
+            case "abstract":
+              result = this.generateAbstract({ rng, palette });
+              break;
+            case "cyberpunk":
+              result = this.generateCyberpunk({ rng, palette });
+              break;
+            case "cosmic":
+              result = this.generateCosmic({ rng, palette });
+              break;
+            case "fluid":
+              result = this.generateFluid({ rng, palette });
+              break;
+            case "geometric":
+              result = this.generateGeometric({ rng, palette });
+              break;
+            case "organic":
+              result = this.generateOrganic({ rng, palette });
+              break;
+            case "neural":
+              result = this.generateNeural({ rng, palette });
+              break;
+            case "surreal":
+              result = this.generateSurreal({ rng, palette });
+              break;
+          }
+
+          // overlay interactions
+          this.drawTrail(palette);
+          this.drawRipples(palette);
+
+          // optional enhancement (practical + subtle)
+          if (this.$("aiModeToggle").checked) this.applyAIEnhancement();
+
+          const renderTime = Math.round(performance.now() - start);
+
+          this.lastLayers = result.layers;
+          this.lastElements =
+            result.elements + this.ripples.length + this.mouseTrail.length;
+
+          this.updateStats(renderTime);
+
+          if (withLoading && !this.isAnimating) {
+            setTimeout(() => this.hideLoading(), 240);
+          }
+
+          if (saveToGallery && !this.isAnimating) {
+            this.saveToGallery();
+            this.toast("Generated + saved to gallery");
+            this.generation++;
+            this.updateGenerationLabel();
+          } else if (!this.isAnimating) {
+            // keep gen label stable unless user generates
+            this.updateGenerationLabel();
+          }
+        }
+
+        remix() {
+          // practical remix: random sliders + style, seed & prompt suggestions
+          const styles = Array.from(this.$("styleSelect").options);
+          this.$("styleSelect").selectedIndex = Math.floor(
+            Math.random() * styles.length
+          );
+
+          const c = Math.floor(Math.random() * 10) + 1;
+          const i = Math.floor(Math.random() * 10) + 1;
+          this.$("complexitySlider").value = c;
+          this.$("intensitySlider").value = i;
+          this.complexity = c;
+          this.intensity = i;
+          this.$("complexityValue").textContent = c;
+          this.$("intensityValue").textContent = i;
+
+          const prompts = [
+            "soft nebula haze",
+            "geometric balance",
+            "calm minimal gradients",
+            "organic branching lines",
+            "dreamy portals and fog",
+            "night skyline reflections",
+            "fluid paint pour",
+            "subtle neural connections",
+          ];
+          this.$("promptInput").value =
+            prompts[Math.floor(Math.random() * prompts.length)];
+          this.$("seedInput").value = String(
+            Math.floor(Math.random() * 999999)
+          );
+
+          this.generate({ withLoading: true, saveToGallery: true });
+        }
+
+        toggleAnimation() {
+          this.isAnimating = !this.isAnimating;
+          const btn = this.$("animateBtn");
+
+          if (this.isAnimating) {
+            btn.innerHTML = '<i class="fas fa-stop"></i> Stop Animation';
+            this.startAnimation();
+            this.toast("Animation started");
+          } else {
+            btn.innerHTML = '<i class="fas fa-play"></i> Animate';
+            this.stopAnimation();
+            this.toast("Animation stopped");
+          }
+        }
+
+        startAnimation() {
+          const tick = () => {
+            if (!this.isAnimating) return;
+
+            // animate time; keep seed stable so it feels like "alive" not random spam
+            this.animT += 0.02;
+
+            // During animation, do NOT show loading and do NOT autosave
+            this.generate({ withLoading: false, saveToGallery: false });
+
+            this.animFrame = requestAnimationFrame(tick);
+          };
+          tick();
+        }
+
+        stopAnimation() {
+          if (this.animFrame) cancelAnimationFrame(this.animFrame);
+          this.animFrame = null;
+        }
+
+        savePNG() {
+          const link = document.createElement("a");
+          link.download = `artlab-${Date.now()}.png`;
+          link.href = this.canvas.toDataURL("image/png");
+          link.click();
+          this.toast("Saved PNG");
+        }
+
+        saveToGallery() {
+          const dataUrl = this.canvas.toDataURL("image/png");
+          const artwork = {
+            id: Date.now(),
+            dataUrl,
+            prompt: (this.$("promptInput").value || "").trim(),
+            style: this.$("styleSelect").value,
+            seed: (this.$("seedInput").value || "").trim(),
+            createdAt: new Date().toISOString(),
+          };
+
+          this.gallery.unshift(artwork);
+          if (this.gallery.length > 60) this.gallery.length = 60;
+          localStorage.setItem("artlab_gallery", JSON.stringify(this.gallery));
+        }
+
+        openGallery() {
+          const container = this.$("galleryContainer");
+          const grid = this.$("galleryGrid");
+          grid.innerHTML = "";
+
+          if (!this.gallery.length) {
+            grid.innerHTML = `
+              <div style="grid-column: 1 / -1; text-align:center; padding: 2.5rem; color: var(--muted);">
+                <i class="fas fa-images" style="font-size: 2.5rem; display:block; margin-bottom: 0.75rem;"></i>
+                <div style="font-weight:800; color: var(--text); margin-bottom: 0.25rem;">No art yet</div>
+                <div>Generate something and it’ll show up here.</div>
+              </div>
+            `;
+          } else {
+            this.gallery.forEach((a) => {
+              const item = document.createElement("div");
+              item.className = "gallery-item";
+              item.innerHTML = `
+                <img src="${a.dataUrl}" alt="${(
+                a.prompt ||
+                a.style ||
+                "Artwork"
+              ).replace(/"/g, "&quot;")}">
+                <div class="gallery-meta">
+                  <span style="text-transform: capitalize;">${a.style}</span>
+                  <span>${new Date(a.createdAt).toLocaleDateString()}</span>
+                </div>
+              `;
+
+              item.addEventListener("click", () => {
+                const img = new Image();
+                img.onload = () => {
+                  const w = this.canvas.clientWidth;
+                  const h = this.canvas.clientHeight;
+                  this.ctx.clearRect(0, 0, w, h);
+                  this.ctx.drawImage(img, 0, 0, w, h);
+                  this.toast("Loaded from gallery");
+                  this.closeGallery();
+                };
+                img.src = a.dataUrl;
+              });
+
+              grid.appendChild(item);
+            });
+          }
+
+          container.style.display = "flex";
+        }
+
+        closeGallery() {
+          this.$("galleryContainer").style.display = "none";
+        }
+
+        clearGallery() {
+          this.gallery = [];
+          localStorage.removeItem("artlab_gallery");
+          this.toast("Gallery cleared");
+          // if open, refresh it
+          if (this.$("galleryContainer").style.display === "flex")
+            this.openGallery();
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        window.artLab = new ArtLab();
+      });
+    </script>
+  </body>
+</html>
