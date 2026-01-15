@@ -175,7 +175,7 @@
     setTimeout(() => {
       // The actual page transition will happen after this
       // The fade-out will be handled by the new page's JS
-    }, 2000);
+    }, 5000);
   }
 
   // Hide transition loader (called on new page load)
@@ -1357,81 +1357,225 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =========================
-  // DEMO 1: PARTICLE GALAXY
+  // ENHANCED PARTICLE GALAXY
   // =========================
   const galaxyCanvas = document.getElementById("galaxyCanvas");
   if (galaxyCanvas) {
-    console.log("Initializing Particle Galaxy...");
+    console.log("Initializing Enhanced Cosmic Galaxy...");
 
-    class ParticleGalaxy {
+    class EnhancedParticleGalaxy {
       constructor() {
         this.canvas = galaxyCanvas;
         this.ctx = this.canvas.getContext("2d");
-        this.canvas.width = this.canvas.parentElement.clientWidth;
-        this.canvas.height = 300;
+        this.resizeCanvas();
 
+        // Enhanced properties
         this.particles = [];
         this.blackHoles = [];
-        this.gravity = 1.0;
-        this.trailOpacity = 0.8;
+        this.nebulae = [];
+        this.supernovae = [];
+        this.gravity = 1.5;
+        this.trailOpacity = 0.85;
+        this.warpStrength = 0.8;
         this.lastTime = 0;
         this.fps = 60;
+        this.time = 0;
 
-        this.createStars(150);
+        // Create initial cosmic scene
+        this.createStars(300);
+        this.createNebulae(3);
         this.setupControls();
         this.animate();
+
+        // Add a central black hole
+        setTimeout(() => {
+          this.addBlackHole(this.canvas.width / 2, this.canvas.height / 2);
+        }, 1000);
+
+        // Add occasional supernovae
+        this.startSupernovaEvents();
+      }
+
+      resizeCanvas() {
+        const container = this.canvas.parentElement;
+        this.canvas.width = container.clientWidth;
+        this.canvas.height = Math.min(400, window.innerHeight * 0.4);
       }
 
       createStars(count) {
         for (let i = 0; i < count; i++) {
+          const starType = Math.random();
+          let radius, brightness, speed, color;
+
+          // Different star types
+          if (starType < 0.7) {
+            // Main sequence stars
+            radius = Math.random() * 1.5 + 0.5;
+            brightness = Math.random() * 0.6 + 0.4;
+            speed = Math.random() * 0.3 + 0.1;
+            color = this.getStarColor(6000 + Math.random() * 4000);
+          } else if (starType < 0.9) {
+            // Red giants
+            radius = Math.random() * 3 + 2;
+            brightness = Math.random() * 0.8 + 0.2;
+            speed = Math.random() * 0.2 + 0.05;
+            color = this.getStarColor(3000 + Math.random() * 2000);
+          } else {
+            // Blue supergiants
+            radius = Math.random() * 2.5 + 1.5;
+            brightness = Math.random() * 0.9 + 0.6;
+            speed = Math.random() * 0.4 + 0.2;
+            color = this.getStarColor(15000 + Math.random() * 10000);
+          }
+
           this.particles.push({
             x: Math.random() * this.canvas.width,
             y: Math.random() * this.canvas.height,
-            vx: (Math.random() - 0.5) * 0.5,
-            vy: (Math.random() - 0.5) * 0.5,
-            radius: Math.random() * 2 + 1,
-            color: `hsl(${Math.random() * 100 + 200}, 100%, 70%)`,
+            vx: (Math.random() - 0.5) * speed,
+            vy: (Math.random() - 0.5) * speed,
+            radius: radius,
+            originalRadius: radius,
+            color: color,
+            brightness: brightness,
             trail: [],
+            maxTrail: Math.floor(Math.random() * 10 + 10),
             twinklePhase: Math.random() * Math.PI * 2,
-            twinkleSpeed: Math.random() * 1.6 + 0.4,
+            twinkleSpeed: Math.random() * 2 + 0.5,
+            flickerRate: Math.random() * 0.02 + 0.01,
+            type: starType < 0.7 ? "main" : starType < 0.9 ? "red" : "blue",
+            hasGlare: Math.random() > 0.7,
+            glareAngle: Math.random() * Math.PI * 2,
           });
         }
         this.updateStats();
       }
 
-      addStar(x, y) {
-        this.particles.push({
-          x: x || Math.random() * this.canvas.width,
-          y: y || Math.random() * this.canvas.height,
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2,
-          radius: Math.random() * 3 + 2,
-          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
-          trail: [],
-          twinklePhase: Math.random() * Math.PI * 2,
-          twinkleSpeed: Math.random() * 1.6 + 0.4,
-        });
-        this.updateStats();
+      getStarColor(temperature) {
+        // Convert temperature to RGB color (simplified)
+        let r, g, b;
+
+        if (temperature < 4000) {
+          // Red
+          r = 255;
+          g = Math.floor(255 * (temperature / 4000));
+          b = Math.floor(255 * ((temperature / 4000) * 0.5));
+        } else if (temperature < 8000) {
+          // Yellow to white
+          r = 255;
+          g = 255;
+          b = Math.floor(255 * ((temperature - 4000) / 4000));
+        } else {
+          // Blue
+          r = Math.floor(255 * (1 - (temperature - 8000) / 8000));
+          g = Math.floor(255 * (1 - (temperature - 8000) / 12000));
+          b = 255;
+        }
+
+        return `rgb(${r}, ${g}, ${b})`;
       }
 
-      addBlackHole(x, y) {
-        this.blackHoles.push({
+      createNebulae(count) {
+        for (let i = 0; i < count; i++) {
+          this.nebulae.push({
+            x: Math.random() * this.canvas.width,
+            y: Math.random() * this.canvas.height,
+            radius: Math.random() * 100 + 50,
+            color: `hsl(${Math.random() * 60 + 250}, 70%, 50%)`,
+            density: Math.random() * 0.3 + 0.1,
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: Math.random() * 0.01 + 0.005,
+          });
+        }
+      }
+
+      addBlackHole(x, y, mass = 1500) {
+        const blackHole = {
           x: x || this.canvas.width / 2,
           y: y || this.canvas.height / 2,
-          radius: 15,
-          mass: 1000,
+          radius: 18,
+          mass: mass,
           glowPulse: 0,
-        });
+          rotation: 0,
+          accretionDisk: [],
+          hasGravitationalLensing: true,
+          lensingStrength: 1.2,
+        };
+
+        // Create accretion disk particles
+        for (let i = 0; i < 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const distance =
+            blackHole.radius * 3 + Math.random() * blackHole.radius * 4;
+          blackHole.accretionDisk.push({
+            angle: angle,
+            distance: distance,
+            speed: Math.sqrt(blackHole.mass / distance) * 0.1,
+            size: Math.random() * 2 + 1,
+            heat: Math.random() * 0.8 + 0.2,
+          });
+        }
+
+        this.blackHoles.push(blackHole);
         this.updateStats();
       }
 
-      reset() {
-        this.particles = [];
-        this.blackHoles = [];
-        this.createStars(150);
+      createSupernova(x, y) {
+        const supernova = {
+          x: x || Math.random() * this.canvas.width,
+          y: y || Math.random() * this.canvas.height,
+          age: 0,
+          maxAge: 120, // frames
+          radius: 0,
+          maxRadius: Math.random() * 50 + 30,
+          shockwaveRadius: 0,
+          particles: [],
+          color: `hsl(${Math.random() * 40 + 30}, 100%, 60%)`,
+        };
+
+        // Create explosion particles
+        for (let i = 0; i < 100; i++) {
+          supernova.particles.push({
+            angle: Math.random() * Math.PI * 2,
+            speed: Math.random() * 3 + 1,
+            distance: 0,
+            size: Math.random() * 3 + 1,
+            decay: Math.random() * 0.03 + 0.01,
+          });
+        }
+
+        this.supernovae.push(supernova);
+
+        // Remove a nearby star
+        const nearestStar = this.findNearestStar(supernova.x, supernova.y);
+        if (nearestStar) {
+          const index = this.particles.indexOf(nearestStar);
+          if (index > -1) {
+            this.particles.splice(index, 1);
+          }
+        }
+      }
+
+      findNearestStar(x, y) {
+        let nearest = null;
+        let nearestDist = Infinity;
+
+        this.particles.forEach((star) => {
+          const dx = star.x - x;
+          const dy = star.y - y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < nearestDist && dist < 50) {
+            nearestDist = dist;
+            nearest = star;
+          }
+        });
+
+        return nearest;
       }
 
       animate(timestamp) {
+        this.time++;
+
         // Calculate FPS
         if (this.lastTime) {
           this.fps = Math.round(1000 / (timestamp - this.lastTime));
@@ -1442,139 +1586,595 @@ document.addEventListener("DOMContentLoaded", () => {
         const fpsEl = document.getElementById("galaxyFPS");
         if (fpsEl) fpsEl.textContent = this.fps;
 
-        // Clear with trail effect
-        this.ctx.fillStyle = `rgba(15, 23, 42, ${1 - this.trailOpacity})`;
+        // Clear canvas with space background
+        this.drawSpaceBackground();
+
+        // Update and draw nebulae
+        this.updateNebulae();
+
+        // Update and draw particles with enhanced effects
+        this.updateParticles();
+
+        // Update and draw black holes with accretion disks
+        this.updateBlackHoles();
+
+        // Update and draw supernovae
+        this.updateSupernovae();
+
+        // Draw gravitational lensing effects
+        this.drawGravitationalLensing();
+
+        this.updateStats();
+        requestAnimationFrame((t) => this.animate(t));
+      }
+
+      drawSpaceBackground() {
+        // Deep space gradient
+        const gradient = this.ctx.createLinearGradient(
+          0,
+          0,
+          0,
+          this.canvas.height
+        );
+        gradient.addColorStop(0, "#0a0a1a");
+        gradient.addColorStop(1, "#1e1b4b");
+
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Update particles
-        this.particles.forEach((p) => {
-          // Trail
-          p.trail.push({ x: p.x, y: p.y });
-          if (p.trail.length > 15) p.trail.shift();
+        // Subtle starfield background
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+        for (let i = 0; i < 50; i++) {
+          const x =
+            ((this.time * 0.1 + i * 100) % (this.canvas.width + 200)) - 100;
+          const y =
+            Math.sin(i * 0.5 + this.time * 0.02) * 50 + this.canvas.height / 2;
+          const size = Math.sin(this.time * 0.02 + i) * 0.5 + 1;
 
-          // Gravity from black holes
+          this.ctx.beginPath();
+          this.ctx.arc(x, y, size, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+      }
+
+      updateNebulae() {
+        this.nebulae.forEach((nebula) => {
+          nebula.pulse += nebula.pulseSpeed;
+          const pulse = Math.sin(nebula.pulse) * 0.3 + 0.7;
+
+          // Draw nebula glow
+          const gradient = this.ctx.createRadialGradient(
+            nebula.x,
+            nebula.y,
+            0,
+            nebula.x,
+            nebula.y,
+            nebula.radius * pulse
+          );
+          gradient.addColorStop(
+            0,
+            `${nebula.color.replace(")", ", 0.8)").replace("hsl", "hsla")}`
+          );
+          gradient.addColorStop(
+            1,
+            `${nebula.color.replace(")", ", 0)").replace("hsl", "hsla")}`
+          );
+
+          this.ctx.globalCompositeOperation = "lighter";
+          this.ctx.fillStyle = gradient;
+          this.ctx.beginPath();
+          this.ctx.arc(
+            nebula.x,
+            nebula.y,
+            nebula.radius * pulse,
+            0,
+            Math.PI * 2
+          );
+          this.ctx.fill();
+          this.ctx.globalCompositeOperation = "source-over";
+        });
+      }
+
+      updateParticles() {
+        const time = Date.now() * 0.001;
+
+        this.particles.forEach((p) => {
+          // Update trail
+          p.trail.push({ x: p.x, y: p.y });
+          if (p.trail.length > p.maxTrail) p.trail.shift();
+
+          // Apply gravitational forces from black holes
           this.blackHoles.forEach((bh) => {
             const dx = bh.x - p.x;
             const dy = bh.y - p.y;
-            const dist = Math.max(10, Math.sqrt(dx * dx + dy * dy));
-            const force = (bh.mass / (dist * dist)) * this.gravity * 0.1;
+            const dist = Math.max(5, Math.sqrt(dx * dx + dy * dy));
+
+            // Realistic inverse square law gravity
+            const force = (bh.mass / (dist * dist)) * this.gravity * 0.15;
 
             p.vx += (dx / dist) * force;
             p.vy += (dy / dist) * force;
+
+            // Warp effect near black holes
+            if (dist < bh.radius * 10) {
+              const warp = (1 - dist / (bh.radius * 10)) * this.warpStrength;
+              const angle = Math.atan2(dy, dx);
+              p.vx += Math.cos(angle + Math.PI / 2) * warp * 0.5;
+              p.vy += Math.sin(angle + Math.PI / 2) * warp * 0.5;
+            }
           });
 
-          // Move
+          // Natural motion damping
+          p.vx *= 0.995;
+          p.vy *= 0.995;
+
+          // Update position
           p.x += p.vx;
           p.y += p.vy;
 
-          // Bounce off walls
-          if (p.x < 0 || p.x > this.canvas.width) p.vx *= -0.9;
-          if (p.y < 0 || p.y > this.canvas.height) p.vy *= -0.9;
+          // Boundary handling with slight bounce
+          const margin = 20;
+          if (p.x < -margin) p.x = this.canvas.width + margin;
+          if (p.x > this.canvas.width + margin) p.x = -margin;
+          if (p.y < -margin) p.y = this.canvas.height + margin;
+          if (p.y > this.canvas.height + margin) p.y = -margin;
 
-          // Keep in bounds
-          p.x = Math.max(0, Math.min(p.x, this.canvas.width));
-          p.y = Math.max(0, Math.min(p.y, this.canvas.height));
+          // Dynamic twinkle with flicker
+          const twinkle =
+            Math.sin(time * p.twinkleSpeed + p.twinklePhase) * 0.2 + 0.9;
+          const flicker = Math.random() > p.flickerRate ? 1 : 0.7;
+          const brightness = p.brightness * twinkle * flicker;
 
-          // Draw trail
+          // Update star radius based on brightness
+          p.radius = p.originalRadius * brightness;
+
+          // Draw trail with fading effect
           p.trail.forEach((point, i) => {
-            const alpha = (i / p.trail.length) * 0.5;
-            this.ctx.fillStyle = p.color.replace("%)", `%, ${alpha})`);
+            const alpha = (i / p.trail.length) * 0.3 * brightness;
+            this.ctx.fillStyle = p.color
+              .replace("rgb", "rgba")
+              .replace(")", `, ${alpha})`);
             this.ctx.beginPath();
-            this.ctx.arc(point.x, point.y, p.radius * 0.7, 0, Math.PI * 2);
+            this.ctx.arc(point.x, point.y, p.radius * 0.5, 0, Math.PI * 2);
             this.ctx.fill();
           });
 
-          // Draw particle
-          const time = Date.now() * 0.001;
-          const twinkle =
-            Math.sin(time * p.twinkleSpeed + p.twinklePhase) * 0.22 + 0.88;
-          const r = p.radius * twinkle;
+          // Draw star with enhanced glow
+          this.drawStar(p, brightness);
 
-          this.ctx.save();
-          this.ctx.globalCompositeOperation = "lighter";
-
-          // Soft glow
-          const glow = this.ctx.createRadialGradient(
-            p.x,
-            p.y,
-            0,
-            p.x,
-            p.y,
-            r * 4.2
-          );
-          glow.addColorStop(0, `rgba(255, 255, 255, ${0.85})`);
-          glow.addColorStop(0.35, `rgba(170, 220, 255, ${0.28})`);
-          glow.addColorStop(1, "rgba(0,0,0,0)");
-
-          this.ctx.fillStyle = glow;
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, r * 4.2, 0, Math.PI * 2);
-          this.ctx.fill();
-
-          // Star core
-          this.ctx.fillStyle = `rgba(255, 255, 255, ${0.9})`;
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, Math.max(0.9, r), 0, Math.PI * 2);
-          this.ctx.fill();
-
-          this.ctx.restore();
+          // Draw star glare for bright stars
+          if (p.hasGlare && brightness > 0.6) {
+            this.drawStarGlare(p, brightness);
+          }
         });
+      }
 
-        // Draw black holes
+      drawStar(star, brightness) {
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = "lighter";
+
+        // Outer glow
+        const outerGlow = this.ctx.createRadialGradient(
+          star.x,
+          star.y,
+          0,
+          star.x,
+          star.y,
+          star.radius * 6
+        );
+        outerGlow.addColorStop(
+          0,
+          `${star.color.replace(")", ", 0.4)").replace("rgb", "rgba")}`
+        );
+        outerGlow.addColorStop(
+          0.5,
+          `${star.color.replace(")", ", 0.1)").replace("rgb", "rgba")}`
+        );
+        outerGlow.addColorStop(1, "rgba(0,0,0,0)");
+
+        this.ctx.fillStyle = outerGlow;
+        this.ctx.beginPath();
+        this.ctx.arc(star.x, star.y, star.radius * 6, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Inner glow
+        const innerGlow = this.ctx.createRadialGradient(
+          star.x,
+          star.y,
+          0,
+          star.x,
+          star.y,
+          star.radius * 3
+        );
+        innerGlow.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+        innerGlow.addColorStop(
+          0.7,
+          `${star.color.replace(")", ", 0.6)").replace("rgb", "rgba")}`
+        );
+        innerGlow.addColorStop(1, "rgba(0,0,0,0)");
+
+        this.ctx.fillStyle = innerGlow;
+        this.ctx.beginPath();
+        this.ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Star core
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${brightness * 0.9})`;
+        this.ctx.beginPath();
+        this.ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+      }
+
+      drawStarGlare(star, brightness) {
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = "lighter";
+        this.ctx.translate(star.x, star.y);
+        this.ctx.rotate(star.glareAngle + this.time * 0.01);
+
+        const glareLength = star.radius * 8 * brightness;
+        const glareWidth = star.radius * 1.5;
+
+        // Horizontal glare
+        const gradient1 = this.ctx.createLinearGradient(
+          -glareLength,
+          0,
+          glareLength,
+          0
+        );
+        gradient1.addColorStop(0, "rgba(255, 255, 255, 0)");
+        gradient1.addColorStop(0.3, `rgba(255, 255, 255, ${brightness * 0.2})`);
+        gradient1.addColorStop(0.5, `rgba(255, 255, 255, ${brightness * 0.3})`);
+        gradient1.addColorStop(0.7, `rgba(255, 255, 255, ${brightness * 0.2})`);
+        gradient1.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+        this.ctx.fillStyle = gradient1;
+        this.ctx.fillRect(
+          -glareLength,
+          -glareWidth / 2,
+          glareLength * 2,
+          glareWidth
+        );
+
+        // Vertical glare
+        this.ctx.rotate(Math.PI / 2);
+        const gradient2 = this.ctx.createLinearGradient(
+          -glareLength * 0.7,
+          0,
+          glareLength * 0.7,
+          0
+        );
+        gradient2.addColorStop(0, "rgba(255, 255, 255, 0)");
+        gradient2.addColorStop(
+          0.5,
+          `rgba(255, 255, 255, ${brightness * 0.15})`
+        );
+        gradient2.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+        this.ctx.fillStyle = gradient2;
+        this.ctx.fillRect(
+          -glareLength * 0.7,
+          -glareWidth / 3,
+          glareLength * 1.4,
+          glareWidth * 0.7
+        );
+
+        this.ctx.restore();
+      }
+
+      updateBlackHoles() {
         const time = Date.now() * 0.001;
-        this.blackHoles.forEach((bh) => {
-          // Update glow pulse
-          bh.glowPulse = Math.sin(time * 2) * 0.3 + 0.7;
 
-          // Black hole with event horizon glow
-          const gradient = this.ctx.createRadialGradient(
+        this.blackHoles.forEach((bh) => {
+          // Update rotation and pulse
+          bh.rotation += 0.01;
+          bh.glowPulse = Math.sin(time * 1.5) * 0.4 + 0.6;
+
+          // Update accretion disk
+          bh.accretionDisk.forEach((particle) => {
+            particle.angle += particle.speed;
+            particle.heat = Math.sin(time * 2 + particle.angle) * 0.3 + 0.7;
+          });
+
+          // Draw black hole with enhanced effects
+          this.drawBlackHole(bh, time);
+        });
+      }
+
+      drawBlackHole(bh, time) {
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = "lighter";
+
+        // Schwarzschild radius glow (gravitational lensing effect)
+        if (bh.hasGravitationalLensing) {
+          const lensingGradient = this.ctx.createRadialGradient(
             bh.x,
             bh.y,
             bh.radius * 0.5,
             bh.x,
             bh.y,
-            bh.radius * 2
+            bh.radius * 4
           );
-          gradient.addColorStop(0, "rgba(0, 0, 0, 1)");
-          gradient.addColorStop(
-            0.7,
-            `rgba(100, 20, 200, ${bh.glowPulse * 0.5})`
+          lensingGradient.addColorStop(0, "rgba(0, 0, 0, 0.9)");
+          lensingGradient.addColorStop(
+            0.3,
+            `rgba(50, 0, 100, ${bh.glowPulse * 0.3})`
           );
-          gradient.addColorStop(1, "rgba(180, 76, 255, 0)");
+          lensingGradient.addColorStop(
+            0.6,
+            `rgba(100, 20, 200, ${bh.glowPulse * 0.15})`
+          );
+          lensingGradient.addColorStop(1, "rgba(180, 76, 255, 0)");
 
-          // Event horizon glow
-          this.ctx.fillStyle = gradient;
+          this.ctx.fillStyle = lensingGradient;
           this.ctx.beginPath();
-          this.ctx.arc(bh.x, bh.y, bh.radius * 2, 0, Math.PI * 2);
+          this.ctx.arc(bh.x, bh.y, bh.radius * 4, 0, Math.PI * 2);
           this.ctx.fill();
+        }
 
-          // Black hole core
-          this.ctx.fillStyle = "#000";
-          this.ctx.beginPath();
-          this.ctx.arc(bh.x, bh.y, bh.radius, 0, Math.PI * 2);
-          this.ctx.fill();
+        // Accretion disk
+        bh.accretionDisk.forEach((particle) => {
+          const x = bh.x + Math.cos(particle.angle) * particle.distance;
+          const y = bh.y + Math.sin(particle.angle) * particle.distance;
 
-          // Accretion disk
-          this.ctx.strokeStyle = `rgba(180, 76, 255, ${
-            0.3 + Math.sin(time) * 0.2
-          })`;
-          this.ctx.lineWidth = 2;
-          this.ctx.beginPath();
-          this.ctx.arc(bh.x, bh.y, bh.radius * 2.5, 0, Math.PI * 2);
-          this.ctx.stroke();
+          // Heat-based color
+          const heatColor = `hsl(${330 - particle.heat * 50}, 100%, ${
+            50 + particle.heat * 30
+          }%)`;
 
-          // Inner disk
-          this.ctx.strokeStyle = `rgba(100, 20, 200, ${
-            0.5 + Math.cos(time * 1.5) * 0.2
-          })`;
-          this.ctx.lineWidth = 1;
-          this.ctx.beginPath();
-          this.ctx.arc(bh.x, bh.y, bh.radius * 1.5, 0, Math.PI * 2);
-          this.ctx.stroke();
+          // Draw disk particle with motion blur
+          this.ctx.save();
+          this.ctx.translate(x, y);
+          this.ctx.rotate(particle.angle + Math.PI / 2);
+
+          const particleGradient = this.ctx.createLinearGradient(
+            -particle.size,
+            0,
+            particle.size,
+            0
+          );
+          particleGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+          particleGradient.addColorStop(
+            0.5,
+            `${heatColor.replace(")", ", 0.8)").replace("hsl", "hsla")}`
+          );
+          particleGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+          this.ctx.fillStyle = particleGradient;
+          this.ctx.fillRect(
+            -particle.size * 2,
+            -particle.size / 2,
+            particle.size * 4,
+            particle.size
+          );
+
+          this.ctx.restore();
         });
 
+        // Event horizon glow
+        const horizonGradient = this.ctx.createRadialGradient(
+          bh.x,
+          bh.y,
+          bh.radius * 0.8,
+          bh.x,
+          bh.y,
+          bh.radius * 2.5
+        );
+        horizonGradient.addColorStop(
+          0,
+          `rgba(0, 0, 0, ${0.8 + bh.glowPulse * 0.2})`
+        );
+        horizonGradient.addColorStop(
+          0.7,
+          `rgba(100, 20, 200, ${bh.glowPulse * 0.4})`
+        );
+        horizonGradient.addColorStop(
+          1,
+          `rgba(180, 76, 255, ${bh.glowPulse * 0.1})`
+        );
+
+        this.ctx.fillStyle = horizonGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(bh.x, bh.y, bh.radius * 2.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Photon sphere
+        this.ctx.strokeStyle = `rgba(255, 255, 255, ${
+          0.2 + Math.sin(time * 3) * 0.1
+        })`;
+        this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([5, 3]);
+        this.ctx.beginPath();
+        this.ctx.arc(bh.x, bh.y, bh.radius * 1.5, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Inner accretion disk
+        this.ctx.strokeStyle = `rgba(255, 100, 255, ${
+          0.4 + Math.cos(time * 2) * 0.2
+        })`;
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(bh.x, bh.y, bh.radius * 3, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Black hole singularity (true black)
+        this.ctx.fillStyle = "#000";
+        this.ctx.beginPath();
+        this.ctx.arc(bh.x, bh.y, bh.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+      }
+
+      drawGravitationalLensing() {
+        this.blackHoles.forEach((bh) => {
+          if (!bh.hasGravitationalLensing) return;
+
+          // Create distortion effect around black hole
+          this.ctx.save();
+          this.ctx.globalCompositeOperation = "source-over";
+
+          // Draw lensing rings
+          for (let i = 0; i < 3; i++) {
+            const radius = bh.radius * (2 + i * 1.5);
+            const alpha = 0.1 - i * 0.03;
+
+            this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.arc(
+              bh.x,
+              bh.y,
+              radius + Math.sin(this.time * 0.02 + i) * 2,
+              0,
+              Math.PI * 2
+            );
+            this.ctx.stroke();
+          }
+
+          this.ctx.restore();
+        });
+      }
+
+      updateSupernovae() {
+        for (let i = this.supernovae.length - 1; i >= 0; i--) {
+          const sn = this.supernovae[i];
+          sn.age++;
+
+          if (sn.age > sn.maxAge) {
+            this.supernovae.splice(i, 1);
+            continue;
+          }
+
+          const progress = sn.age / sn.maxAge;
+          sn.radius = sn.maxRadius * (1 - Math.pow(1 - progress, 2));
+          sn.shockwaveRadius = sn.maxRadius * 1.5 * progress;
+
+          // Draw supernova
+          this.drawSupernova(sn, progress);
+
+          // Update and draw explosion particles
+          sn.particles.forEach((p) => {
+            p.distance += p.speed;
+            p.size *= 1 - p.decay;
+
+            if (p.size > 0) {
+              const x = sn.x + Math.cos(p.angle) * p.distance;
+              const y = sn.y + Math.sin(p.angle) * p.distance;
+
+              const alpha = (1 - progress) * 0.7;
+              this.ctx.fillStyle = `${sn.color
+                .replace(")", `, ${alpha})`)
+                .replace("hsl", "hsla")}`;
+              this.ctx.beginPath();
+              this.ctx.arc(x, y, p.size, 0, Math.PI * 2);
+              this.ctx.fill();
+            }
+          });
+        }
+      }
+
+      drawSupernova(sn, progress) {
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = "lighter";
+
+        // Shockwave
+        const shockwaveGradient = this.ctx.createRadialGradient(
+          sn.x,
+          sn.y,
+          sn.radius,
+          sn.x,
+          sn.y,
+          sn.shockwaveRadius
+        );
+        shockwaveGradient.addColorStop(
+          0,
+          `${sn.color.replace(")", ", 0.8)").replace("hsl", "hsla")}`
+        );
+        shockwaveGradient.addColorStop(
+          0.7,
+          `${sn.color.replace(")", ", 0.3)").replace("hsl", "hsla")}`
+        );
+        shockwaveGradient.addColorStop(1, "rgba(0,0,0,0)");
+
+        this.ctx.fillStyle = shockwaveGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(sn.x, sn.y, sn.shockwaveRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Core explosion
+        const coreGradient = this.ctx.createRadialGradient(
+          sn.x,
+          sn.y,
+          0,
+          sn.x,
+          sn.y,
+          sn.radius
+        );
+        coreGradient.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+        coreGradient.addColorStop(
+          0.5,
+          `${sn.color.replace(")", ", 0.7)").replace("hsl", "hsla")}`
+        );
+        coreGradient.addColorStop(1, "rgba(0,0,0,0)");
+
+        this.ctx.fillStyle = coreGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(sn.x, sn.y, sn.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+      }
+
+      startSupernovaEvents() {
+        setInterval(() => {
+          if (Math.random() > 0.7 && this.particles.length > 50) {
+            this.createSupernova();
+          }
+        }, 5000);
+      }
+
+      reset() {
+        this.particles = [];
+        this.blackHoles = [];
+        this.nebulae = [];
+        this.supernovae = [];
+        this.createStars(300);
+        this.createNebulae(3);
+      }
+
+      addStar(x, y) {
+        const starType = Math.random();
+        let radius, color;
+
+        if (starType < 0.8) {
+          radius = Math.random() * 2 + 1;
+          color = this.getStarColor(6000 + Math.random() * 4000);
+        } else {
+          radius = Math.random() * 3 + 2;
+          color = this.getStarColor(3000 + Math.random() * 3000);
+        }
+
+        this.particles.push({
+          x: x || Math.random() * this.canvas.width,
+          y: y || Math.random() * this.canvas.height,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          radius: radius,
+          originalRadius: radius,
+          color: color,
+          brightness: Math.random() * 0.7 + 0.5,
+          trail: [],
+          maxTrail: 15,
+          twinklePhase: Math.random() * Math.PI * 2,
+          twinkleSpeed: Math.random() * 2 + 0.5,
+          flickerRate: Math.random() * 0.02 + 0.01,
+          type: starType < 0.8 ? "main" : "red",
+          hasGlare: Math.random() > 0.5,
+        });
         this.updateStats();
-        requestAnimationFrame((t) => this.animate(t));
       }
 
       updateStats() {
@@ -1609,6 +2209,42 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
+        // Warp strength slider
+        const warpSlider = document.createElement("input");
+        warpSlider.type = "range";
+        warpSlider.min = "0";
+        warpSlider.max = "2";
+        warpSlider.step = "0.1";
+        warpSlider.value = this.warpStrength;
+        warpSlider.style.width = "100%";
+
+        warpSlider.addEventListener("input", (e) => {
+          this.warpStrength = parseFloat(e.target.value);
+        });
+
+        // Add warp control if needed
+        const controlsContainer = document.querySelector(".controls");
+        if (controlsContainer) {
+          const warpControl = document.createElement("div");
+          warpControl.className = "control-group";
+          warpControl.innerHTML = `
+          <label>Warp Strength</label>
+          <input type="range" min="0" max="2" step="0.1" value="${
+            this.warpStrength
+          }" id="warpSlider">
+          <div class="value-display">${this.warpStrength.toFixed(1)}</div>
+        `;
+          controlsContainer.appendChild(warpControl);
+
+          document
+            .getElementById("warpSlider")
+            .addEventListener("input", (e) => {
+              this.warpStrength = parseFloat(e.target.value);
+              e.target.nextElementSibling.textContent =
+                this.warpStrength.toFixed(1);
+            });
+        }
+
         // Buttons
         document
           .getElementById("galaxyReset")
@@ -1623,6 +2259,16 @@ document.addEventListener("DOMContentLoaded", () => {
           ?.addEventListener("click", () => {
             this.addBlackHole(
               Math.random() * this.canvas.width,
+              Math.random() * this.canvas.height,
+              Math.random() * 1000 + 500
+            );
+          });
+
+        document
+          .getElementById("galaxyAddSupernova")
+          ?.addEventListener("click", () => {
+            this.createSupernova(
+              Math.random() * this.canvas.width,
               Math.random() * this.canvas.height
             );
           });
@@ -1635,6 +2281,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (e.shiftKey) {
             this.addBlackHole(x, y);
+          } else if (e.ctrlKey) {
+            this.createSupernova(x, y);
           } else {
             this.addStar(x, y);
           }
@@ -1642,17 +2290,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Handle window resize
         window.addEventListener("resize", () => {
-          if (this.canvas) {
-            const container = this.canvas.parentElement;
-            if (container) {
-              this.canvas.width = container.clientWidth;
-            }
-          }
+          this.resizeCanvas();
         });
+
+        // Touch events for mobile
+        this.canvas.addEventListener(
+          "touchstart",
+          (e) => {
+            e.preventDefault();
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            if (e.touches.length > 1) {
+              this.addBlackHole(x, y);
+            } else {
+              this.addStar(x, y);
+            }
+          },
+          { passive: false }
+        );
       }
     }
 
-    window.galaxyDemo = new ParticleGalaxy();
+    // Initialize the enhanced galaxy
+    window.galaxyDemo = new EnhancedParticleGalaxy();
+
+    // Add some instructions
+    console.log("Enhanced Cosmic Galaxy Ready!");
+    console.log("Click to add stars");
+    console.log("Shift+Click to add black holes");
+    console.log("Ctrl+Click to create supernovae");
   }
 
   // =========================

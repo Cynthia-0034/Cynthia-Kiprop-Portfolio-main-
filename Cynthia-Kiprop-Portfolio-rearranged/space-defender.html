@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>QUANTUM DEFENDER | Cynthia Kiprop</title>
 
     <link
@@ -30,9 +33,6 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='8' fill='%2300ffff'/%3E%3Ccircle cx='16' cy='16' r='15' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='4' x2='16' y2='10' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='22' x2='16' y2='28' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='4' y1='16' x2='10' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='22' y1='16' x2='28' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3C/svg%3E")
-            16 16,
-          crosshair;
       }
 
       body {
@@ -42,6 +42,28 @@
         overflow-x: hidden;
         min-height: 100vh;
         position: relative;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Mobile cursor - touch friendly */
+      @media (hover: none) and (pointer: coarse) {
+        * {
+          cursor: default !important;
+        }
+
+        canvas {
+          cursor: default !important;
+        }
+      }
+
+      /* Desktop cursor */
+      @media (hover: hover) and (pointer: fine) {
+        * {
+          cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='8' fill='%2300ffff'/%3E%3Ccircle cx='16' cy='16' r='15' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='4' x2='16' y2='10' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='16' y1='22' x2='16' y2='28' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='4' y1='16' x2='10' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3Cline x1='22' y1='16' x2='28' y2='16' stroke='%2300ffff' stroke-width='2'/%3E%3C/svg%3E")
+              16 16,
+            crosshair;
+        }
       }
 
       /* Animated nebula background */
@@ -98,7 +120,7 @@
         background: rgba(10, 10, 26, 0.95);
         backdrop-filter: blur(20px);
         border-bottom: 2px solid var(--quantum-blue);
-        padding: 1rem 2rem;
+        padding: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -108,8 +130,8 @@
       .logo {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 1.8rem;
+        gap: 8px;
+        font-size: 1.2rem;
         font-weight: 900;
         background: linear-gradient(
           135deg,
@@ -119,13 +141,27 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
       }
 
+      @media (min-width: 768px) {
+        .logo {
+          font-size: 1.8rem;
+          gap: 12px;
+          letter-spacing: 1px;
+        }
+      }
+
       .logo-icon {
-        font-size: 2.2rem;
+        font-size: 1.5rem;
         animation: quantumPulse 2s infinite;
+      }
+
+      @media (min-width: 768px) {
+        .logo-icon {
+          font-size: 2.2rem;
+        }
       }
 
       @keyframes quantumPulse {
@@ -140,54 +176,83 @@
         }
       }
 
-      /* Main game container */
+      /* Main game container - RESPONSIVE */
       .game-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 2rem;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
         min-height: calc(100vh - 80px);
       }
 
-      @media (max-width: 1024px) {
+      @media (min-width: 1024px) {
         .game-container {
-          grid-template-columns: 1fr;
-          padding: 1rem;
+          display: grid;
+          grid-template-columns: 1fr 400px;
+          padding: 2rem;
+          gap: 2rem;
         }
       }
 
-      /* Game canvas */
+      /* Game canvas - RESPONSIVE */
       .game-canvas {
         background: rgba(10, 10, 26, 0.7);
         backdrop-filter: blur(10px);
         border: 2px solid var(--quantum-blue);
-        border-radius: 20px;
+        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8),
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8),
           0 0 0 1px rgba(0, 255, 255, 0.1),
-          inset 0 0 60px rgba(0, 255, 255, 0.05);
+          inset 0 0 40px rgba(0, 255, 255, 0.05);
         position: relative;
+        order: 1;
+      }
+
+      @media (min-width: 1024px) {
+        .game-canvas {
+          border-radius: 20px;
+          box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(0, 255, 255, 0.1),
+            inset 0 0 60px rgba(0, 255, 255, 0.05);
+        }
       }
 
       .canvas-header {
-        padding: 1.5rem;
+        padding: 1rem;
         border-bottom: 2px solid rgba(0, 255, 255, 0.2);
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        gap: 0.75rem;
         background: rgba(0, 0, 0, 0.6);
       }
 
+      @media (min-width: 640px) {
+        .canvas-header {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem;
+        }
+      }
+
       .mission-title {
-        font-size: 1.3rem;
+        font-size: 1rem;
         font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+      }
+
+      @media (min-width: 768px) {
+        .mission-title {
+          font-size: 1.3rem;
+          gap: 12px;
+          letter-spacing: 1px;
+        }
       }
 
       .mission-status {
@@ -196,19 +261,29 @@
           var(--quantum-purple),
           var(--neon-pink)
         );
-        padding: 8px 20px;
-        border-radius: 25px;
+        padding: 6px 16px;
+        border-radius: 20px;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         display: flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        gap: 6px;
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        width: fit-content;
+      }
+
+      @media (min-width: 640px) {
+        .mission-status {
+          padding: 8px 20px;
+          border-radius: 25px;
+          font-size: 0.9rem;
+          gap: 8px;
+        }
       }
 
       .status-pulse {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         background: white;
         border-radius: 50%;
         animation: statusPulse 1s infinite;
@@ -226,28 +301,45 @@
 
       canvas {
         width: 100%;
-        height: 500px;
+        height: 400px;
         display: block;
         background: transparent;
-        cursor: crosshair; /* fixes cursor “disappears” on canvas */
-        touch-action: none; /* cleaner mobile control */
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
-      /* Control panel */
+      @media (min-width: 768px) {
+        canvas {
+          height: 500px;
+        }
+      }
+
+      /* Control panel - RESPONSIVE */
       .control-panel {
         background: rgba(20, 20, 40, 0.8);
         backdrop-filter: blur(15px);
         border: 2px solid var(--quantum-purple);
-        border-radius: 20px;
-        padding: 1.5rem;
+        border-radius: 15px;
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        gap: 1.25rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        order: 2;
+      }
+
+      @media (min-width: 1024px) {
+        .control-panel {
+          border-radius: 20px;
+          padding: 1.5rem;
+          gap: 1.5rem;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
       }
 
       .panel-section {
-        padding-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
         border-bottom: 2px solid rgba(139, 92, 246, 0.3);
       }
 
@@ -257,41 +349,70 @@
       }
 
       .section-title {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
         color: var(--quantum-blue);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
 
-      /* Game controls */
+      @media (min-width: 768px) {
+        .section-title {
+          font-size: 0.9rem;
+          letter-spacing: 2px;
+          margin-bottom: 1rem;
+          gap: 10px;
+        }
+      }
+
+      /* Game controls - RESPONSIVE */
       .game-controls {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 1.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .game-controls {
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 1.5rem;
+        }
       }
 
       .quantum-btn {
         background: rgba(255, 255, 255, 0.05);
         border: 2px solid rgba(0, 255, 255, 0.3);
         color: white;
-        padding: 14px 20px;
-        border-radius: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
         transition: all 0.2s ease;
         cursor: pointer;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+        min-height: 50px;
+        touch-action: manipulation;
+      }
+
+      @media (min-width: 768px) {
+        .quantum-btn {
+          padding: 14px 20px;
+          font-size: 0.95rem;
+          gap: 10px;
+          letter-spacing: 1px;
+          min-height: auto;
+        }
       }
 
       .quantum-btn:hover {
@@ -312,7 +433,7 @@
           var(--quantum-purple)
         );
         border: none;
-        box-shadow: 0 5px 25px rgba(0, 255, 255, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
       }
 
       .quantum-btn.primary:hover {
@@ -339,22 +460,36 @@
         border: none;
       }
 
-      /* Stats display */
+      /* Stats display - RESPONSIVE */
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 1.5rem;
+        gap: 10px;
+        margin-bottom: 1.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .stats-grid {
+          gap: 12px;
+          margin-bottom: 1.5rem;
+        }
       }
 
       .stat-card {
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid rgba(0, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 1rem;
+        border-radius: 10px;
+        padding: 0.75rem;
         text-align: center;
         position: relative;
         overflow: hidden;
+      }
+
+      @media (min-width: 768px) {
+        .stat-card {
+          padding: 1rem;
+          border-radius: 12px;
+        }
       }
 
       .stat-card::before {
@@ -372,15 +507,23 @@
       }
 
       .stat-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: var(--quantum-blue);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
+      }
+
+      @media (min-width: 768px) {
+        .stat-label {
+          font-size: 0.8rem;
+          margin-bottom: 6px;
+          letter-spacing: 1px;
+        }
       }
 
       .stat-value {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 900;
         background: linear-gradient(135deg, var(--quantum-blue), white);
         -webkit-background-clip: text;
@@ -388,46 +531,97 @@
         background-clip: text;
       }
 
-      /* Power-ups display */
+      @media (min-width: 768px) {
+        .stat-value {
+          font-size: 1.8rem;
+        }
+      }
+
+      /* Power-ups display - RESPONSIVE */
       .powerups-section {
-        margin-top: 1rem;
+        margin-top: 0.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .powerups-section {
+          margin-top: 1rem;
+        }
       }
 
       .powerups-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-top: 1rem;
+        gap: 8px;
+        margin-top: 0.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .powerups-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+          margin-top: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .powerups-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
 
       .powerup-item {
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(236, 72, 153, 0.3);
-        border-radius: 10px;
-        padding: 12px;
+        border-radius: 8px;
+        padding: 10px;
         text-align: center;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        min-height: 70px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      @media (min-width: 768px) {
+        .powerup-item {
+          padding: 12px;
+          border-radius: 10px;
+          min-height: auto;
+        }
       }
 
       .powerup-item.active {
         background: rgba(236, 72, 153, 0.2);
         border-color: var(--neon-pink);
-        box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+        box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
         transform: translateY(-2px);
       }
 
       .powerup-icon {
-        font-size: 1.5rem;
-        margin-bottom: 6px;
+        font-size: 1.25rem;
+        margin-bottom: 4px;
         display: block;
       }
 
+      @media (min-width: 768px) {
+        .powerup-icon {
+          font-size: 1.5rem;
+          margin-bottom: 6px;
+        }
+      }
+
       .powerup-name {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
         color: white;
+      }
+
+      @media (min-width: 768px) {
+        .powerup-name {
+          font-size: 0.75rem;
+        }
       }
 
       .powerup-timer {
@@ -440,34 +634,60 @@
         width: 0%;
       }
 
-      /* Ability bars */
+      /* Ability bars - RESPONSIVE */
       .ability-bars {
-        margin-top: 1rem;
+        margin-top: 0.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .ability-bars {
+          margin-top: 1rem;
+        }
       }
 
       .ability-bar {
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .ability-bar {
+          margin-bottom: 1rem;
+        }
       }
 
       .bar-label {
         display: flex;
         justify-content: space-between;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--quantum-blue);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
+      }
+
+      @media (min-width: 768px) {
+        .bar-label {
+          font-size: 0.85rem;
+          margin-bottom: 6px;
+        }
       }
 
       .bar-container {
-        height: 8px;
+        height: 6px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
+        border-radius: 3px;
         overflow: hidden;
         position: relative;
       }
 
+      @media (min-width: 768px) {
+        .bar-container {
+          height: 8px;
+          border-radius: 4px;
+        }
+      }
+
       .bar-fill {
         height: 100%;
-        border-radius: 4px;
+        border-radius: inherit;
         transition: width 0.2s ease;
         position: relative;
       }
@@ -484,60 +704,103 @@
         background: linear-gradient(90deg, var(--neon-pink), #ec4899);
       }
 
-      /* Key bindings */
+      /* Key bindings - RESPONSIVE */
       .key-bindings {
-        margin-top: 1rem;
-        padding: 1rem;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
         background: rgba(0, 0, 0, 0.3);
-        border-radius: 12px;
+        border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      @media (min-width: 768px) {
+        .key-bindings {
+          margin-top: 1rem;
+          padding: 1rem;
+          border-radius: 12px;
+        }
       }
 
       .key-row {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 10px;
-        font-size: 0.9rem;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+      }
+
+      @media (min-width: 768px) {
+        .key-row {
+          gap: 12px;
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+        }
       }
 
       .key-btn {
-        min-width: 40px;
-        height: 40px;
-        padding: 0 10px;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
         background: rgba(255, 255, 255, 0.1);
         border: 2px solid rgba(0, 255, 255, 0.3);
-        border-radius: 8px;
+        border-radius: 6px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--quantum-blue);
         white-space: nowrap;
       }
 
-      /* Notification system */
+      @media (min-width: 768px) {
+        .key-btn {
+          min-width: 40px;
+          height: 40px;
+          padding: 0 10px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+        }
+      }
+
+      /* Notification system - RESPONSIVE */
       .notification-center {
         position: fixed;
-        top: 100px;
-        right: 2rem;
-        width: 300px;
+        top: 80px;
+        right: 1rem;
+        width: calc(100% - 2rem);
+        max-width: 300px;
         z-index: 1000;
         pointer-events: none;
+      }
+
+      @media (min-width: 768px) {
+        .notification-center {
+          top: 100px;
+          right: 2rem;
+          width: 300px;
+        }
       }
 
       .notification {
         background: rgba(20, 20, 40, 0.95);
         backdrop-filter: blur(10px);
         border: 1px solid var(--quantum-blue);
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
         transform: translateX(100%);
         opacity: 0;
         transition: all 0.3s ease;
         pointer-events: auto;
+      }
+
+      @media (min-width: 768px) {
+        .notification {
+          padding: 1rem;
+          margin-bottom: 1rem;
+          border-radius: 12px;
+        }
       }
 
       .notification.show {
@@ -546,49 +809,88 @@
       }
 
       .notification-title {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: var(--quantum-blue);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+      }
+
+      @media (min-width: 768px) {
+        .notification-title {
+          font-size: 0.9rem;
+          margin-bottom: 6px;
+          gap: 8px;
+        }
       }
 
       .notification-message {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: rgba(255, 255, 255, 0.8);
       }
 
-      /* Boss health bar */
+      @media (min-width: 768px) {
+        .notification-message {
+          font-size: 0.85rem;
+        }
+      }
+
+      /* Boss health bar - RESPONSIVE */
       .boss-health {
         position: fixed;
-        top: 110px;
+        top: 90px;
         left: 50%;
         transform: translateX(-50%);
-        width: min(900px, 80%);
+        width: min(90%, 600px);
         background: rgba(0, 0, 0, 0.8);
         border: 2px solid var(--danger-red);
-        border-radius: 10px;
-        padding: 8px;
+        border-radius: 8px;
+        padding: 6px;
         display: none;
         z-index: 999;
+      }
+
+      @media (min-width: 768px) {
+        .boss-health {
+          top: 110px;
+          width: min(900px, 80%);
+          padding: 8px;
+          border-radius: 10px;
+        }
       }
 
       .boss-name {
         text-align: center;
         font-weight: 700;
         color: var(--danger-red);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+      }
+
+      @media (min-width: 768px) {
+        .boss-name {
+          margin-bottom: 6px;
+          letter-spacing: 2px;
+          font-size: 1rem;
+        }
       }
 
       .boss-bar-container {
-        height: 12px;
+        height: 8px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
+        border-radius: 4px;
         overflow: hidden;
+      }
+
+      @media (min-width: 768px) {
+        .boss-bar-container {
+          height: 12px;
+          border-radius: 6px;
+        }
       }
 
       .boss-bar-fill {
@@ -598,86 +900,71 @@
         transition: width 0.2s ease;
       }
 
-      /* Combo counter */
+      /* Combo counter - RESPONSIVE */
       .combo-display {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 4rem;
+        font-size: 3rem;
         font-weight: 900;
         color: var(--neon-pink);
-        text-shadow: 0 0 30px rgba(236, 72, 153, 0.7);
+        text-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
         opacity: 0;
         pointer-events: none;
         transition: all 0.3s ease;
         z-index: 999;
       }
 
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .game-container {
-          padding: 1rem;
+      @media (min-width: 768px) {
+        .combo-display {
+          font-size: 4rem;
+          text-shadow: 0 0 30px rgba(236, 72, 153, 0.7);
         }
+      }
 
-        .quantum-header {
-          padding: 1rem;
+      /* Mobile-specific touch controls hint */
+      .mobile-controls-hint {
+        display: none;
+        text-align: center;
+        padding: 10px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 767px) {
+        .mobile-controls-hint {
+          display: block;
         }
+      }
 
-        .game-controls {
-          grid-template-columns: 1fr;
-        }
+      /* Virtual joystick for mobile (optional) */
+      .virtual-joystick {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 100px;
+        height: 100px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        border: 2px solid var(--quantum-blue);
+        display: none;
+        z-index: 100;
+        touch-action: none;
+      }
 
-        .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .powerups-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .notification-center {
-          width: 90%;
-          left: 5%;
-          right: 5%;
+      @media (max-width: 767px) and (hover: none) {
+        .virtual-joystick {
+          display: block;
         }
       }
     </style>
   </head>
 
-  <body class="is-loading">
-    <!-- Page Loader (shows ~2s) -->
-    <div
-      id="page-loader"
-      class="page-loader"
-      role="status"
-      aria-live="polite"
-      aria-label="Loading"
-    >
-      <div class="loader-backdrop"></div>
-
-      <div class="loader-center">
-        <div class="loader-orbit" aria-hidden="true"></div>
-        <div class="loader-orbit orbit-2" aria-hidden="true"></div>
-        <div class="loader-orbit orbit-3" aria-hidden="true"></div>
-
-        <div class="loader-card">
-          <div class="loader-brand">
-            <span class="loader-mark" aria-hidden="true"></span>
-            <div class="loader-text">
-              <div class="loader-name">Cynthia J Kiprop</div>
-              <div class="loader-tagline">Design • Web • Data</div>
-            </div>
-          </div>
-
-          <div class="loader-progress" aria-hidden="true">
-            <span class="loader-bar"></span>
-          </div>
-
-          <div class="loader-hint">Loading the experience…</div>
-        </div>
-      </div>
-    </div>
+  <body>
     <div class="nebula-bg"></div>
     <div class="starfield" id="starfield"></div>
 
@@ -697,12 +984,13 @@
         <span>QUANTUM DEFENDER</span>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 1rem">
+      <div style="display: flex; align-items: center; gap: 0.75rem">
         <button
           class="quantum-btn"
           onclick="window.open('index.html', '_self')"
         >
-          <i class="fas fa-arrow-left"></i> Portfolio
+          <i class="fas fa-arrow-left"></i>
+          <span class="hide-on-mobile">Portfolio</span>
         </button>
       </div>
     </header>
@@ -720,7 +1008,10 @@
           </div>
         </div>
 
-        <canvas id="quantumCanvas" width="1024" height="500"></canvas>
+        <canvas id="quantumCanvas"></canvas>
+        <div class="mobile-controls-hint">
+          Touch to move ship • Hold to auto-fire
+        </div>
       </section>
 
       <aside class="control-panel">
@@ -863,13 +1154,11 @@
           </h3>
           <div class="key-bindings">
             <div class="key-row">
-              <div class="key-btn">←</div>
-              <div class="key-btn">→</div>
+              <div class="key-btn">← →</div>
               <span>Move Ship</span>
             </div>
             <div class="key-row">
-              <div class="key-btn">A</div>
-              <div class="key-btn">D</div>
+              <div class="key-btn">A D</div>
               <span>Alternate Move</span>
             </div>
             <div class="key-row">
@@ -877,27 +1166,33 @@
               <span>Fire Primary</span>
             </div>
             <div class="key-row">
-              <div class="key-btn">SHIFT</div>
-              <span>Hold for Rapid Fire</span>
+              <div class="key-btn">TOUCH</div>
+              <span>Move & Auto-fire</span>
             </div>
             <div class="key-row">
               <div class="key-btn">P</div>
               <span>Pause Game</span>
-            </div>
-            <div class="key-row">
-              <div class="key-btn">CLICK</div>
-              <span>Hold for Auto-fire</span>
             </div>
           </div>
         </div>
       </aside>
     </main>
 
+    <!-- Virtual joystick for mobile (optional, can be enabled) -->
+    <div class="virtual-joystick" id="virtualJoystick"></div>
+
     <script>
       class QuantumDefender {
         constructor() {
           this.canvas = document.getElementById("quantumCanvas");
           this.ctx = this.canvas.getContext("2d");
+
+          // Detect mobile device
+          this.isMobile =
+            /iPhone|iPad|iPod|Android|webOS|BlackBerry|Windows Phone/i.test(
+              navigator.userAgent
+            ) ||
+            (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
 
           this.gameState = "ready"; // ready, running, paused, gameover, boss
 
@@ -914,18 +1209,24 @@
 
           this.keys = new Set();
           this.mouse = { x: 0, y: 0, down: false };
+          this.touchControls = {
+            active: false,
+            x: 0,
+            y: 0,
+            moveX: 0,
+          };
 
           this.player = {
             x: 400,
             y: 450,
-            width: 40,
-            height: 60,
-            speed: 8,
+            width: this.isMobile ? 50 : 40,
+            height: this.isMobile ? 70 : 60,
+            speed: this.isMobile ? 10 : 8,
             health: 100,
             shield: 100,
             energy: 100,
             lastShot: 0,
-            shotCooldown: 150,
+            shotCooldown: this.isMobile ? 180 : 150,
             isInvulnerable: false,
             invulnerableTimer: 0,
           };
@@ -948,17 +1249,28 @@
           this.boss = null;
           this.bossActive = false;
 
-          // NEW: timed world powerup spawns so game feels alive
-          this.worldPowerupTimer = 0; // frames
+          // Mobile performance optimization
+          this.particleLimit = this.isMobile ? 80 : 150;
+          this.enemyLimit = this.isMobile ? 15 : 25;
+
+          this.worldPowerupTimer = 0;
 
           this.init();
           this.setupEventListeners();
           this.createStarfield();
           this.updateUI();
-          this.showNotification(
-            "Quantum Defender Online",
-            "Systems ready for launch!"
-          );
+
+          if (this.isMobile) {
+            this.showNotification(
+              "Mobile Mode Active",
+              "Touch to move • Hold to auto-fire"
+            );
+          } else {
+            this.showNotification(
+              "Quantum Defender Online",
+              "Systems ready for launch!"
+            );
+          }
         }
 
         init() {
@@ -972,17 +1284,34 @@
           const rect = container.getBoundingClientRect();
           const dpr = window.devicePixelRatio || 1;
 
-          // IMPORTANT FIX: reset transform so scaling doesn't stack on resize
-          this.canvas.width = Math.floor(rect.width * dpr);
-          this.canvas.height = Math.floor(500 * dpr);
-          this.canvas.style.width = rect.width + "px";
-          this.canvas.style.height = "500px";
+          // Responsive canvas sizing
+          const targetHeight = this.isMobile ? 350 : 500;
+          const containerWidth = rect.width;
+          const containerHeight = Math.min(
+            targetHeight,
+            window.innerHeight * 0.6
+          );
+
+          this.canvas.width = Math.floor(containerWidth * dpr);
+          this.canvas.height = Math.floor(containerHeight * dpr);
+          this.canvas.style.width = containerWidth + "px";
+          this.canvas.style.height = containerHeight + "px";
           this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          // Reset player position on resize
+          if (this.player) {
+            this.player.x = Math.min(
+              Math.max(this.player.x, this.player.width / 2),
+              this.width - this.player.width / 2
+            );
+            this.player.y = this.height - 50;
+          }
         }
 
         get width() {
           return this.canvas.width / (window.devicePixelRatio || 1);
         }
+
         get height() {
           return this.canvas.height / (window.devicePixelRatio || 1);
         }
@@ -990,7 +1319,7 @@
         createStarfield() {
           const starfield = document.getElementById("starfield");
           starfield.innerHTML = "";
-          const count = 160;
+          const count = this.isMobile ? 100 : 160;
 
           for (let i = 0; i < count; i++) {
             const star = document.createElement("div");
@@ -1017,6 +1346,7 @@
         }
 
         setupEventListeners() {
+          // Keyboard controls
           window.addEventListener("keydown", (e) => {
             this.keys.add(e.key);
 
@@ -1028,20 +1358,31 @@
             this.keys.delete(e.key);
           });
 
-          // mouse
+          // Mouse controls
           this.canvas.addEventListener("mousemove", (e) => {
             const rect = this.canvas.getBoundingClientRect();
             this.mouse.x = e.clientX - rect.left;
             this.mouse.y = e.clientY - rect.top;
+
+            // On mobile, move ship to touch position
+            if (this.isMobile && this.gameState === "running") {
+              this.player.x = Math.max(
+                this.player.width / 2,
+                Math.min(this.width - this.player.width / 2, this.mouse.x)
+              );
+            }
           });
 
-          this.canvas.addEventListener(
-            "mousedown",
-            () => (this.mouse.down = true)
-          );
+          this.canvas.addEventListener("mousedown", () => {
+            this.mouse.down = true;
+            if (this.isMobile && this.gameState === "ready") {
+              this.startGame();
+            }
+          });
+
           window.addEventListener("mouseup", () => (this.mouse.down = false));
 
-          // touch
+          // Touch controls for mobile
           this.canvas.addEventListener(
             "touchstart",
             (e) => {
@@ -1050,6 +1391,17 @@
               this.mouse.x = t.clientX - rect.left;
               this.mouse.y = t.clientY - rect.top;
               this.mouse.down = true;
+
+              if (this.gameState === "ready") {
+                this.startGame();
+              } else if (this.gameState === "running") {
+                // Move ship to touch position
+                this.player.x = Math.max(
+                  this.player.width / 2,
+                  Math.min(this.width - this.player.width / 2, this.mouse.x)
+                );
+              }
+
               e.preventDefault();
             },
             { passive: false }
@@ -1062,15 +1414,41 @@
               const t = e.touches[0];
               this.mouse.x = t.clientX - rect.left;
               this.mouse.y = t.clientY - rect.top;
+
+              if (this.gameState === "running") {
+                // Move ship to touch position
+                this.player.x = Math.max(
+                  this.player.width / 2,
+                  Math.min(this.width - this.player.width / 2, this.mouse.x)
+                );
+              }
+
               e.preventDefault();
             },
             { passive: false }
           );
 
-          this.canvas.addEventListener(
-            "touchend",
-            () => (this.mouse.down = false)
+          this.canvas.addEventListener("touchend", (e) => {
+            this.mouse.down = false;
+            e.preventDefault();
+          });
+
+          // Prevent default touch behaviors
+          document.addEventListener(
+            "touchmove",
+            function (e) {
+              if (e.target.tagName === "CANVAS") {
+                e.preventDefault();
+              }
+            },
+            { passive: false }
           );
+
+          // Prevent context menu on canvas
+          this.canvas.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            return false;
+          });
 
           // buttons
           document
@@ -1130,15 +1508,15 @@
 
           this.player = {
             x: this.width / 2,
-            y: 450,
-            width: 40,
-            height: 60,
-            speed: 8,
+            y: this.height - 50,
+            width: this.isMobile ? 50 : 40,
+            height: this.isMobile ? 70 : 60,
+            speed: this.isMobile ? 10 : 8,
             health: 100,
             shield: 100,
             energy: 100,
             lastShot: 0,
-            shotCooldown: 150,
+            shotCooldown: this.isMobile ? 180 : 150,
             isInvulnerable: false,
             invulnerableTimer: 0,
           };
@@ -1171,7 +1549,6 @@
           document.getElementById("missionStatus").textContent = "READY";
         }
 
-        // FIX: Update should run during boss fights too
         update() {
           if (!(this.gameState === "running" || this.gameState === "boss"))
             return;
@@ -1201,21 +1578,25 @@
         }
 
         updatePlayer() {
-          const moveSpeed =
-            this.player.speed * (this.activePowerups.timeSlow.active ? 0.7 : 1);
+          // Mobile: ship follows touch, desktop: use keyboard
+          if (!this.isMobile) {
+            const moveSpeed =
+              this.player.speed *
+              (this.activePowerups.timeSlow.active ? 0.7 : 1);
 
-          if (
-            this.keys.has("ArrowLeft") ||
-            this.keys.has("a") ||
-            this.keys.has("A")
-          )
-            this.player.x -= moveSpeed;
-          if (
-            this.keys.has("ArrowRight") ||
-            this.keys.has("d") ||
-            this.keys.has("D")
-          )
-            this.player.x += moveSpeed;
+            if (
+              this.keys.has("ArrowLeft") ||
+              this.keys.has("a") ||
+              this.keys.has("A")
+            )
+              this.player.x -= moveSpeed;
+            if (
+              this.keys.has("ArrowRight") ||
+              this.keys.has("d") ||
+              this.keys.has("D")
+            )
+              this.player.x += moveSpeed;
+          }
 
           // bounds (center-based)
           this.player.x = Math.max(
@@ -1234,7 +1615,18 @@
             ? this.player.shotCooldown / 3
             : this.player.shotCooldown;
 
+          // Auto-shoot when touching/mouse down on mobile
           if (
+            this.isMobile &&
+            this.mouse.down &&
+            this.gameState === "running"
+          ) {
+            if (now - this.player.lastShot > cooldown) {
+              this.shoot();
+              this.player.lastShot = now;
+            }
+          } else if (
+            !this.isMobile &&
             (shootKey || this.mouse.down) &&
             now - this.player.lastShot > cooldown
           ) {
@@ -1255,51 +1647,73 @@
           }
         }
 
-        // IMPROVED: bullets aim towards cursor for "control the arrow" feel
         shoot() {
-          // direction from ship to cursor (clamp upward bias so it still feels shooter-like)
-          const dx = (this.mouse.x || this.player.x) - this.player.x;
-          const dy = (this.mouse.y || 0) - this.player.y;
+          // On mobile, shoot straight up for better control
+          if (this.isMobile) {
+            const bulletCount = this.activePowerups.spreadShot.active ? 5 : 1;
+            const spread = this.activePowerups.spreadShot.active ? 0.25 : 0;
 
-          const len = Math.max(1, Math.hypot(dx, dy));
-          let ux = dx / len;
-          let uy = dy / len;
+            for (let i = 0; i < bulletCount; i++) {
+              const a = (i - (bulletCount - 1) / 2) * spread;
+              const vx = Math.sin(a) * 4;
+              const vy = -12;
 
-          // force upward-ish shooting so it doesn't shoot down into player
-          if (uy > -0.2) uy = -0.2;
-          const nlen = Math.max(1, Math.hypot(ux, uy));
-          ux /= nlen;
-          uy /= nlen;
+              this.bullets.push({
+                x: this.player.x,
+                y: this.player.y - this.player.height / 2,
+                vx,
+                vy,
+                width: 8,
+                height: 24,
+                damage: 10,
+                type: "player",
+                color: "#00ffff",
+              });
+            }
+          } else {
+            // Desktop: aim towards cursor
+            const dx = (this.mouse.x || this.player.x) - this.player.x;
+            const dy = (this.mouse.y || 0) - this.player.y;
 
-          const baseSpeed = 12;
-          const bulletCount = this.activePowerups.spreadShot.active ? 5 : 1;
-          const spread = this.activePowerups.spreadShot.active ? 0.25 : 0;
+            const len = Math.max(1, Math.hypot(dx, dy));
+            let ux = dx / len;
+            let uy = dy / len;
 
-          for (let i = 0; i < bulletCount; i++) {
-            const a = (i - (bulletCount - 1) / 2) * spread;
-            const cos = Math.cos(a),
-              sin = Math.sin(a);
-            const vx = (ux * cos - uy * sin) * baseSpeed;
-            const vy = (ux * sin + uy * cos) * baseSpeed;
+            // force upward-ish shooting
+            if (uy > -0.2) uy = -0.2;
+            const nlen = Math.max(1, Math.hypot(ux, uy));
+            ux /= nlen;
+            uy /= nlen;
 
-            this.bullets.push({
-              x: this.player.x,
-              y: this.player.y - this.player.height / 2,
-              vx,
-              vy,
-              width: 6,
-              height: 20,
-              damage: 10,
-              type: "player",
-              color: "#00ffff",
-            });
+            const baseSpeed = 12;
+            const bulletCount = this.activePowerups.spreadShot.active ? 5 : 1;
+            const spread = this.activePowerups.spreadShot.active ? 0.25 : 0;
+
+            for (let i = 0; i < bulletCount; i++) {
+              const a = (i - (bulletCount - 1) / 2) * spread;
+              const cos = Math.cos(a),
+                sin = Math.sin(a);
+              const vx = (ux * cos - uy * sin) * baseSpeed;
+              const vy = (ux * sin + uy * cos) * baseSpeed;
+
+              this.bullets.push({
+                x: this.player.x,
+                y: this.player.y - this.player.height / 2,
+                vx,
+                vy,
+                width: 6,
+                height: 20,
+                damage: 10,
+                type: "player",
+                color: "#00ffff",
+              });
+            }
           }
 
           this.createMuzzleFlash(
             this.player.x,
             this.player.y - this.player.height / 2
           );
-          this.playSound("shoot");
         }
 
         updateBullets() {
@@ -1321,11 +1735,20 @@
         }
 
         spawnEnemies() {
-          const spawnRate = Math.max(55, 110 - this.wave * 4.5);
+          // Adjust spawn rate for mobile
+          const spawnRate = this.isMobile
+            ? Math.max(65, 130 - this.wave * 4.5)
+            : Math.max(55, 110 - this.wave * 4.5);
 
-          if (Math.random() < 1 / spawnRate && !this.bossActive) {
+          if (
+            Math.random() < 1 / spawnRate &&
+            !this.bossActive &&
+            this.enemies.length < this.enemyLimit
+          ) {
             const types = ["basic", "fast", "tank", "shooter"];
-            const weights = [0.55, 0.2, 0.15, 0.1];
+            const weights = this.isMobile
+              ? [0.6, 0.15, 0.15, 0.1]
+              : [0.55, 0.2, 0.15, 0.1];
 
             let type = "basic";
             let r = Math.random();
@@ -1352,11 +1775,12 @@
         }
 
         createEnemy(type) {
+          // Adjust enemy sizes for mobile
           const base = {
             x: Math.random() * (this.width - 60) + 30,
             y: -50,
-            width: 30,
-            height: 30,
+            width: this.isMobile ? 35 : 30,
+            height: this.isMobile ? 35 : 30,
             health: 20,
             maxHealth: 20,
             color: "#ef4444",
@@ -1367,8 +1791,8 @@
             case "fast":
               return {
                 ...base,
-                width: 20,
-                height: 20,
+                width: this.isMobile ? 25 : 20,
+                height: this.isMobile ? 25 : 20,
                 health: 10,
                 maxHealth: 10,
                 color: "#f59e0b",
@@ -1377,8 +1801,8 @@
             case "tank":
               return {
                 ...base,
-                width: 44,
-                height: 44,
+                width: this.isMobile ? 50 : 44,
+                height: this.isMobile ? 50 : 44,
                 health: 55 + this.wave * 6,
                 maxHealth: 55 + this.wave * 6,
                 color: "#6366f1",
@@ -1387,8 +1811,8 @@
             case "shooter":
               return {
                 ...base,
-                width: 26,
-                height: 26,
+                width: this.isMobile ? 30 : 26,
+                height: this.isMobile ? 30 : 26,
                 health: 15,
                 maxHealth: 15,
                 color: "#10b981",
@@ -1485,7 +1909,6 @@
           });
         }
 
-        // drop-based powerups (from enemies/boss)
         spawnPowerupDrop(x, y) {
           if (Math.random() > 0.22) return;
 
@@ -1502,7 +1925,6 @@
           this.powerups.push({ x, y, width: 20, height: 20, type, vy: 2.1 });
         }
 
-        // NEW: ambient powerups to keep game exciting even when you miss drops
         spawnWorldPowerups() {
           this.worldPowerupTimer++;
           // every ~11 seconds (at 60fps), spawn a powerup from the top
@@ -1636,8 +2058,8 @@
           this.boss = {
             x: this.width / 2,
             y: 110,
-            width: 140,
-            height: 120,
+            width: this.isMobile ? 120 : 140,
+            height: this.isMobile ? 100 : 120,
             health: maxHealth,
             maxHealth,
             vx: 2.4,
@@ -1821,7 +2243,6 @@
           }
         }
 
-        // FIX: all objects are center-based => center AABB collision
         checkCollision(a, b) {
           return (
             Math.abs(a.x - b.x) < (a.width + b.width) / 2 &&
@@ -1830,7 +2251,11 @@
         }
 
         createParticle(x, y, count = 10, color = null) {
-          for (let i = 0; i < count; i++) {
+          // Limit particles on mobile for performance
+          const maxParticles = this.isMobile ? Math.min(count, 6) : count;
+          if (this.particles.length > this.particleLimit) return;
+
+          for (let i = 0; i < maxParticles; i++) {
             this.particles.push({
               x,
               y,
@@ -1856,13 +2281,10 @@
 
         createExplosion(x, y, size) {
           this.explosions.push({ x, y, size, life: 32, maxLife: 32 });
-          this.createParticle(
-            x,
-            y,
-            Math.max(12, Math.floor(size / 3)),
-            "#ffb020"
-          );
-          this.playSound("explosion");
+          const particleCount = this.isMobile
+            ? Math.max(8, Math.floor(size / 4))
+            : Math.max(12, Math.floor(size / 3));
+          this.createParticle(x, y, particleCount, "#ffb020");
         }
 
         updateExplosions() {
@@ -1876,9 +2298,11 @@
         createMuzzleFlash(x, y) {
           this.createParticle(x, y, 8, "#00ffff");
         }
+
         createHitEffect(x, y) {
           this.createParticle(x, y, 6, "#8b5cf6");
         }
+
         createCollectEffect(x, y) {
           this.createParticle(x, y, 24, "#ec4899");
         }
@@ -1921,9 +2345,6 @@
             setTimeout(() => n.remove(), 250);
           }, 2800);
         }
-
-        // OPTIONAL: real sound later; now keep silent but functional
-        playSound(_) {}
 
         showUpgradeMenu() {
           if (!(this.gameState === "running" || this.gameState === "boss"))
@@ -2175,13 +2596,17 @@
           if (this.gameState === "ready") {
             this.drawOverlay(
               "QUANTUM DEFENDER",
-              "Click or press LAUNCH to begin mission",
+              this.isMobile
+                ? "Touch screen to begin mission"
+                : "Click or press LAUNCH to begin mission",
               "#00ffff"
             );
           } else if (this.gameState === "paused") {
             this.drawOverlay(
               "MISSION PAUSED",
-              "Press P or click PAUSE to resume",
+              this.isMobile
+                ? "Tap PAUSE to resume"
+                : "Press P or click PAUSE to resume",
               "#f59e0b"
             );
           } else if (this.gameState === "gameover") {
@@ -2210,21 +2635,23 @@
           ctx.fillRect(0, 0, w, h);
 
           ctx.fillStyle = color;
-          ctx.font = "bold 46px Orbitron";
+          ctx.font = this.isMobile
+            ? "bold 32px Orbitron"
+            : "bold 46px Orbitron";
           ctx.textAlign = "center";
-          ctx.fillText(title, w / 2, h / 2 - 34);
+          ctx.fillText(title, w / 2, h / 2 - (this.isMobile ? 20 : 34));
 
           ctx.fillStyle = "rgba(255,255,255,0.85)";
-          ctx.font = "18px Orbitron";
-          ctx.fillText(subtitle, w / 2, h / 2 + 18);
+          ctx.font = this.isMobile ? "14px Orbitron" : "18px Orbitron";
+          ctx.fillText(subtitle, w / 2, h / 2 + (this.isMobile ? 10 : 18));
+
+          const controlsText = this.isMobile
+            ? "Touch to move • Hold to auto-fire • Tap PAUSE to pause"
+            : "Controls: ← → / A D move • SPACE shoot • Hold CLICK for autofire • P pause";
 
           ctx.fillStyle = "rgba(255,255,255,0.65)";
-          ctx.font = "14px Orbitron";
-          ctx.fillText(
-            "Controls: ← → / A D move • SPACE shoot • Hold CLICK for autofire • P pause",
-            w / 2,
-            h / 2 + 62
-          );
+          ctx.font = this.isMobile ? "11px Orbitron" : "14px Orbitron";
+          ctx.fillText(controlsText, w / 2, h / 2 + (this.isMobile ? 40 : 62));
         }
 
         gameLoop() {
